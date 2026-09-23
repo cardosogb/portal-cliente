@@ -1,0 +1,16 @@
+{
+  "name": "portal-cliente",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@9.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "pnpm --filter @portal/web dev",
+    "dev:api": "pnpm --filter @portal/api dev",
+    "dev:mobile": "pnpm --filter @portal/mobile start",
+    "build": "pnpm -r build"
+  }
+}

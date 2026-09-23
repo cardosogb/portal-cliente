@@ -1,0 +1,78 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { getAdminOverview, getToken, type AdminOverview } from "@/lib/api";
+import { formatDatePtBR, statusLabel } from "@portal/shared";
+
+export default function AdminPage() {
+  const router = useRouter();
+  const [data, setData] = useState<AdminOverview | null>(null);
+
+  useEffect(() => {
+    if (!getToken()) {
+      router.push("/");
+      return;
+    }
+    getAdminOverview().then(setData);
+  }, [router]);
+
+  return (
+    <div>
+      <nav className="top-nav">
+        <span className="serif">Painel Interno — Fernando Miranda Advogados</span>
+        <Link href="/dashboard" style={{ color: "var(--white)" }}>Voltar ao portal do cliente</Link>
+      </nav>
+      <main className="container">
+        {!data && <p>Carregando...</p>}
+        {data && (
+          <>
+            <div className="card" style={{ marginBottom: 20 }}>
+              <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--text-muted)" }}>
+                Processos sem atualização há mais de 15 dias
+              </p>
+              <p style={{ margin: "4px 0 0", fontSize: "2rem", fontWeight: 700 }}>{data.staleProcessesCount}</p>
+            </div>
+
+            <h2 className="serif">Clientes e processos</h2>
+            <div className="card" style={{ overflowX: "auto", marginBottom: 20 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ textAlign: "left", borderBottom: "1px solid var(--border)" }}>
+                    <th style={{ padding: 8 }}>Cliente</th>
+                    <th style={{ padding: 8 }}>Processo</th>
+                    <th style={{ padding: 8 }}>Advogado</th>
+                    <th style={{ padding: 8 }}>Último acesso</th>
+                    <th style={{ padding: 8 }}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.rows.map((r) => (
+                    <tr key={r.processNumber} style={{ borderBottom: "1px solid var(--border)" }}>
+                      <td style={{ padding: 8 }}>{r.clientName}</td>
+                      <td style={{ padding: 8 }}>{r.processNumber}</td>
+                      <td style={{ padding: 8 }}>{r.lawyerName}</td>
+                      <td style={{ padding: 8 }}>{r.lastAccessAt ? formatDatePtBR(r.lastAccessAt) : "—"}</td>
+                      <td style={{ padding: 8 }}>{statusLabel(r.status)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <h2 className="serif">Satisfação consolidada por advogado</h2>
+            <div style={{ display: "grid", gap: 8 }}>
+              {data.satisfaction.map((s) => (
+                <div key={s.lawyerName} className="card" style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span>{s.lawyerName}</span>
+                  <span>{s.averageScore.toFixed(1)} ★ ({s.responseCount} respostas)</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </main>
+    </div>
+  );
+}

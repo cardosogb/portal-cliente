@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "Portal do Cliente",
+    "slug": "portal-cliente-fma",
+    "scheme": "portalcliente",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "br.adv.fernandomiranda.portalcliente"
+    },
+    "android": {
+      "package": "br.adv.fernandomiranda.portalcliente",
+      "adaptiveIcon": {
+        "backgroundColor": "#12203D"
+      }
+    },
+    "plugins": ["expo-router"],
+    "extra": {
+      "apiUrl": "http://localhost:4000"
+    }
+  }
+}
