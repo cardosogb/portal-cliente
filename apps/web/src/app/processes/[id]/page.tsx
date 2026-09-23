@@ -4,10 +4,18 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import type { LegalProcess, Message } from "@portal/shared";
-import { formatBRL, formatDatePtBR, areaLabel } from "@portal/shared";
+import { formatBRL, formatDatePtBR, areaLabel, phaseExplanation } from "@portal/shared";
 import { getProcess, getToken, listMessages, sendMessage } from "@/lib/api";
+import { Logo } from "@/components/Logo";
 
 type Tab = "timeline" | "documentos" | "financeiro" | "mensagens";
+
+const TAB_LABELS: Array<[Tab, string]> = [
+  ["timeline", "Linha do tempo"],
+  ["documentos", "Documentos"],
+  ["financeiro", "Financeiro"],
+  ["mensagens", "Mensagens"],
+];
 
 export default function ProcessPage() {
   const router = useRouter();
@@ -47,7 +55,8 @@ export default function ProcessPage() {
   return (
     <div>
       <nav className="top-nav">
-        <Link href="/dashboard" style={{ color: "var(--white)", textDecoration: "none" }}>
+        <Logo size={32} variant="dark" />
+        <Link href="/dashboard" style={{ color: "var(--white)", textDecoration: "none", fontSize: "0.85rem" }}>
           ← Voltar
         </Link>
       </nav>
@@ -55,7 +64,10 @@ export default function ProcessPage() {
         <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
           {areaLabel(process.area)} · {process.court}
         </p>
-        <h1 className="serif" style={{ margin: "4px 0 16px" }}>Processo nº {process.number}</h1>
+        <h1 className="serif" style={{ margin: "4px 0 4px" }}>Processo nº {process.number}</h1>
+        <p style={{ margin: "0 0 16px", fontSize: "0.85rem", color: "var(--text-muted)" }}>
+          Fase atual: <strong>{process.currentPhase}</strong> — {phaseExplanation(process.currentPhase)}
+        </p>
 
         <div className="card" style={{ marginBottom: 20 }}>
           <p style={{ margin: 0, fontWeight: 600, color: process.nextAction.type === "acao" ? "var(--wine)" : "var(--forest)" }}>
@@ -65,14 +77,13 @@ export default function ProcessPage() {
         </div>
 
         <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
-          {(["timeline", "documentos", "financeiro", "mensagens"] as Tab[]).map((t) => (
+          {TAB_LABELS.map(([key, label]) => (
             <button
-              key={t}
-              className={tab === t ? "btn-primary" : "btn-secondary"}
-              onClick={() => setTab(t)}
-              style={{ textTransform: "capitalize" }}
+              key={key}
+              className={tab === key ? "btn-primary" : "btn-secondary"}
+              onClick={() => setTab(key)}
             >
-              {t}
+              {label}
             </button>
           ))}
         </div>

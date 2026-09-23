@@ -2,12 +2,17 @@ import { useEffect, useState } from "react";
 import { View, Text, ScrollView, Pressable, TextInput, StyleSheet } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import type { LegalProcess, Message } from "@portal/shared";
-import { formatBRL, formatDatePtBR, areaLabel } from "@portal/shared";
+import { formatBRL, formatDatePtBR, areaLabel, phaseExplanation } from "@portal/shared";
 import { getProcess, listMessages, sendMessage } from "@/lib/api";
 import { colors } from "@/theme/colors";
 
 type Tab = "timeline" | "documentos" | "financeiro" | "mensagens";
-const TABS: Tab[] = ["timeline", "documentos", "financeiro", "mensagens"];
+const TABS: Array<[Tab, string]> = [
+  ["timeline", "Linha do tempo"],
+  ["documentos", "Documentos"],
+  ["financeiro", "Financeiro"],
+  ["mensagens", "Mensagens"],
+];
 
 export default function ProcessScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -33,6 +38,9 @@ export default function ProcessScreen() {
         {areaLabel(process.area)} · {process.court}
       </Text>
       <Text style={styles.title}>Processo nº {process.number}</Text>
+      <Text style={styles.mutedSmall}>
+        Fase atual: {process.currentPhase} — {phaseExplanation(process.currentPhase)}
+      </Text>
 
       <View style={styles.actionCard}>
         <Text style={{ color: process.nextAction.type === "acao" ? colors.wine : colors.forest, fontWeight: "600" }}>
@@ -42,13 +50,13 @@ export default function ProcessScreen() {
       </View>
 
       <View style={styles.tabRow}>
-        {TABS.map((t) => (
+        {TABS.map(([key, label]) => (
           <Pressable
-            key={t}
-            style={[styles.tabButton, tab === t && styles.tabButtonActive]}
-            onPress={() => setTab(t)}
+            key={key}
+            style={[styles.tabButton, tab === key && styles.tabButtonActive]}
+            onPress={() => setTab(key)}
           >
-            <Text style={{ color: tab === t ? colors.white : colors.text, textTransform: "capitalize" }}>{t}</Text>
+            <Text style={{ color: tab === key ? colors.white : colors.text }}>{label}</Text>
           </Pressable>
         ))}
       </View>

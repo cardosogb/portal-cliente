@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import type { LegalProcess } from "@portal/shared";
 import { areaLabel, statusLabel } from "@portal/shared";
 import { clearToken, getToken, listProcesses } from "@/lib/api";
+import { Logo } from "@/components/Logo";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -30,7 +31,7 @@ export default function DashboardPage() {
   return (
     <div>
       <nav className="top-nav">
-        <span className="serif" style={{ fontSize: "1.1rem" }}>Portal do Cliente</span>
+        <Logo size={32} variant="dark" />
         <div style={{ display: "flex", gap: 12 }}>
           <Link href="/admin" style={{ color: "var(--brass-light)", fontSize: "0.85rem" }}>
             Painel interno

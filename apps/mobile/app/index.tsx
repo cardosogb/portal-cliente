@@ -3,6 +3,7 @@ import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { login } from "@/lib/api";
 import { colors } from "@/theme/colors";
+import { Logo } from "@/components/Logo";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -26,8 +27,11 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.brand}>FERNANDO MIRANDA ADVOGADOS</Text>
+      <View style={{ marginBottom: 20 }}>
+        <Logo size={48} variant="dark" />
+      </View>
       <Text style={styles.title}>Portal do Cliente</Text>
+      <Text style={styles.subtitle}>Acompanhe seu processo aqui, sem precisar ligar para o escritório.</Text>
 
       <Text style={styles.label}>E-mail</Text>
       <TextInput
@@ -54,8 +58,8 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.ink, padding: 24, justifyContent: "center" },
-  brand: { color: colors.brass, letterSpacing: 2, fontSize: 12, fontWeight: "700" },
-  title: { color: colors.white, fontSize: 28, fontWeight: "600", marginTop: 8, marginBottom: 24 },
+  title: { color: colors.white, fontSize: 28, fontWeight: "600", marginBottom: 6 },
+  subtitle: { color: colors.fog2, fontSize: 13, marginBottom: 24 },
   label: { color: colors.fog2, marginBottom: 6, marginTop: 12 },
   input: { backgroundColor: colors.white, borderRadius: 8, padding: 12, fontSize: 16 },
   error: { color: "#f2a6a6", marginTop: 12 },

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { login } from "@/lib/api";
+import { Logo } from "@/components/Logo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -37,10 +38,13 @@ export default function LoginPage() {
       }}
     >
       <div className="card" style={{ maxWidth: 420, width: "100%" }}>
-        <p style={{ textTransform: "uppercase", letterSpacing: 2, color: "var(--brass)", fontSize: "0.75rem", fontWeight: 700 }}>
-          Fernando Miranda Advogados
+        <div style={{ marginBottom: 20 }}>
+          <Logo size={48} />
+        </div>
+        <h1 style={{ fontSize: "1.6rem", margin: "0 0 6px" }}>Portal do Cliente</h1>
+        <p style={{ margin: "0 0 24px", color: "var(--text-muted)", fontSize: "0.9rem" }}>
+          Acompanhe seu processo aqui, sem precisar ligar para o escritório.
         </p>
-        <h1 style={{ fontSize: "1.6rem", margin: "8px 0 24px" }}>Portal do Cliente</h1>
         <form onSubmit={handleSubmit}>
           <label style={{ display: "block", marginBottom: 12 }}>
             <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>E-mail</span>

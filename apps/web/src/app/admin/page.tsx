@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getAdminOverview, getToken, type AdminOverview } from "@/lib/api";
 import { formatDatePtBR, statusLabel } from "@portal/shared";
+import { Logo } from "@/components/Logo";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -21,10 +22,14 @@ export default function AdminPage() {
   return (
     <div>
       <nav className="top-nav">
-        <span className="serif">Painel Interno — Fernando Miranda Advogados</span>
-        <Link href="/dashboard" style={{ color: "var(--white)" }}>Voltar ao portal do cliente</Link>
+        <Logo size={32} variant="dark" />
+        <Link href="/dashboard" style={{ color: "var(--white)", fontSize: "0.85rem" }}>Voltar ao portal do cliente</Link>
       </nav>
       <main className="container">
+        <h1 className="serif" style={{ marginBottom: 4 }}>Painel interno</h1>
+        <p style={{ margin: "0 0 20px", color: "var(--text-muted)", fontSize: "0.9rem" }}>
+          Visão da equipe do escritório — não é o que o cliente vê.
+        </p>
         {!data && <p>Carregando...</p>}
         {data && (
           <>

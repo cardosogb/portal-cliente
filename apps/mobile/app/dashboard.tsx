@@ -5,6 +5,7 @@ import type { LegalProcess } from "@portal/shared";
 import { areaLabel, statusLabel } from "@portal/shared";
 import { getToken, listProcesses } from "@/lib/api";
 import { colors } from "@/theme/colors";
+import { Logo } from "@/components/Logo";
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -29,6 +30,10 @@ export default function DashboardScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={{ marginBottom: 16 }}>
+        <Logo size={32} />
+      </View>
+      <Text style={styles.sectionTitle}>Seus processos</Text>
       {error && <Text style={styles.error}>{error}</Text>}
       <FlatList
         data={processes}
@@ -62,6 +67,7 @@ export default function DashboardScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.fog, padding: 16 },
+  sectionTitle: { fontSize: 20, fontWeight: "700", color: colors.text, marginBottom: 12 },
   error: { color: colors.wine, marginBottom: 12 },
   card: { backgroundColor: colors.white, borderRadius: 12, padding: 16, borderWidth: 1, borderColor: colors.border, gap: 4 },
   meta: { color: colors.textMuted, fontSize: 12 },
