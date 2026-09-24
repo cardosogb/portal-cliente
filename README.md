@@ -62,6 +62,10 @@ real:
   traduzir andamentos jurídicos (como vêm do ADVBOX) em linguagem simples
   para o cliente; deve ser expandido conforme os tipos de movimentação mais
   comuns do escritório.
+- `packages/shared/src/contact.ts` — número de WhatsApp do escritório usado
+  no botão "Enviar pelo WhatsApp do escritório" (mostrado quando há uma
+  pendência do cliente). **`OFFICE_WHATSAPP_NUMBER` é um placeholder** —
+  troque pelo número real antes de publicar em produção.
 
 ## Funcionalidades implementadas (MVP)
 
@@ -72,10 +76,11 @@ prototipadas end-to-end (com dados mockados):
 - [x] Linha do tempo do processo, com tradução para linguagem simples e
       opção de ver o texto jurídico original
 - [x] Indicação da fase atual e previsão de prazo
-- [x] Ação pendente do cliente em destaque (ex.: "envie um documento até X")
+- [x] Ação pendente do cliente em destaque (ex.: "envie um documento até X"),
+      com botão para resolver a pendência diretamente pelo WhatsApp do
+      escritório (não há mais um canal de mensagens dentro do portal)
 - [x] Documentos do processo para download
 - [x] Painel financeiro (parcelas pagas/pendentes)
-- [x] Canal de mensagem direta com o advogado
 - [x] Painel interno do escritório (clientes/processos, processos parados,
       satisfação por advogado)
 

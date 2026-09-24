@@ -1,6 +1,6 @@
 "use client";
 
-import type { LegalProcess, Message } from "@portal/shared";
+import type { LegalProcess } from "@portal/shared";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const TOKEN_KEY = "portal_token";
@@ -50,17 +50,6 @@ export function listProcesses() {
 
 export function getProcess(id: string) {
   return request<{ process: LegalProcess }>(`/processes/${id}`);
-}
-
-export function listMessages(processId: string) {
-  return request<{ messages: Message[] }>(`/messages/${processId}`);
-}
-
-export function sendMessage(processId: string, text: string) {
-  return request<{ message: Message }>(`/messages/${processId}`, {
-    method: "POST",
-    body: JSON.stringify({ text }),
-  });
 }
 
 export interface AdminOverview {

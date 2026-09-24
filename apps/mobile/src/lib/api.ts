@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
-import type { LegalProcess, Message } from "@portal/shared";
+import type { LegalProcess } from "@portal/shared";
 
 const API_URL =
   (Constants.expoConfig?.extra?.apiUrl as string | undefined) ?? "http://localhost:4000";
@@ -50,15 +50,4 @@ export function listProcesses() {
 
 export function getProcess(id: string) {
   return request<{ process: LegalProcess }>(`/processes/${id}`);
-}
-
-export function listMessages(processId: string) {
-  return request<{ messages: Message[] }>(`/messages/${processId}`);
-}
-
-export function sendMessage(processId: string, text: string) {
-  return request<{ message: Message }>(`/messages/${processId}`, {
-    method: "POST",
-    body: JSON.stringify({ text }),
-  });
 }

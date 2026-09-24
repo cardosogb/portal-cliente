@@ -3,18 +3,24 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import type { LegalProcess, Message } from "@portal/shared";
-import { formatBRL, formatDatePtBR, areaLabel, phaseExplanation } from "@portal/shared";
-import { getProcess, getToken, listMessages, sendMessage } from "@/lib/api";
+import type { LegalProcess } from "@portal/shared";
+import {
+  formatBRL,
+  formatDatePtBR,
+  areaLabel,
+  phaseExplanation,
+  whatsappLink,
+  pendingActionWhatsappMessage,
+} from "@portal/shared";
+import { getProcess, getToken } from "@/lib/api";
 import { Logo } from "@/components/Logo";
 
-type Tab = "timeline" | "documentos" | "financeiro" | "mensagens";
+type Tab = "timeline" | "documentos" | "financeiro";
 
 const TAB_LABELS: Array<[Tab, string]> = [
   ["timeline", "Linha do tempo"],
   ["documentos", "Documentos"],
   ["financeiro", "Financeiro"],
-  ["mensagens", "Mensagens"],
 ];
 
 export default function ProcessPage() {
@@ -52,6 +58,8 @@ export default function ProcessPage() {
     );
   }
 
+  const needsAction = process.nextAction.type === "acao";
+
   return (
     <div>
       <nav className="top-nav">
@@ -70,10 +78,21 @@ export default function ProcessPage() {
         </p>
 
         <div className="card" style={{ marginBottom: 20 }}>
-          <p style={{ margin: 0, fontWeight: 600, color: process.nextAction.type === "acao" ? "var(--wine)" : "var(--forest)" }}>
+          <p style={{ margin: 0, fontWeight: 600, color: needsAction ? "var(--wine)" : "var(--forest)" }}>
             {process.nextAction.text}
           </p>
           <p style={{ margin: "8px 0 0", fontSize: "0.85rem", color: "var(--text-muted)" }}>{process.forecast}</p>
+          {needsAction && (
+            <a
+              href={whatsappLink(pendingActionWhatsappMessage(process.number, process.nextAction.text))}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-whatsapp"
+              style={{ marginTop: 14 }}
+            >
+              <WhatsappIcon /> Enviar pelo WhatsApp do escritório
+            </a>
+          )}
         </div>
 
         <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
@@ -138,59 +157,18 @@ export default function ProcessPage() {
             ))}
           </div>
         )}
-
-        {tab === "mensagens" && <MessagesPanel processId={process.id} />}
       </main>
     </div>
   );
 }
 
-function MessagesPanel({ processId }: { processId: string }) {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [text, setText] = useState("");
-  const [sending, setSending] = useState(false);
-
-  useEffect(() => {
-    listMessages(processId).then((data) => setMessages(data.messages));
-  }, [processId]);
-
-  async function handleSend(e: React.FormEvent) {
-    e.preventDefault();
-    if (!text.trim()) return;
-    setSending(true);
-    try {
-      const { message } = await sendMessage(processId, text);
-      setMessages((m) => [...m, message]);
-      setText("");
-    } finally {
-      setSending(false);
-    }
-  }
-
+function WhatsappIcon() {
   return (
-    <div>
-      <div style={{ display: "grid", gap: 8, marginBottom: 16 }}>
-        {messages.map((m) => (
-          <div
-            key={m.id}
-            className="card"
-            style={{
-              maxWidth: "80%",
-              alignSelf: m.authorRole === "cliente" ? "flex-end" : "flex-start",
-              background: m.authorRole === "cliente" ? "var(--fog-2)" : "var(--white)",
-            }}
-          >
-            <p style={{ margin: 0, fontSize: "0.75rem", color: "var(--text-muted)" }}>{m.authorName}</p>
-            <p style={{ margin: "4px 0 0" }}>{m.text}</p>
-          </div>
-        ))}
-      </div>
-      <form onSubmit={handleSend} style={{ display: "flex", gap: 8 }}>
-        <input className="input" value={text} onChange={(e) => setText(e.target.value)} placeholder="Escreva uma mensagem..." />
-        <button className="btn-primary" type="submit" disabled={sending}>
-          Enviar
-        </button>
-      </form>
-    </div>
+    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" style={{ verticalAlign: "-3px", marginRight: 6 }}>
+      <path
+        fill="currentColor"
+        d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.43 1.32 4.92L2.05 22l5.31-1.39a9.87 9.87 0 0 0 4.68 1.19h.01c5.46 0 9.9-4.45 9.9-9.9 0-2.65-1.03-5.13-2.9-7A9.82 9.82 0 0 0 12.04 2Zm0 1.67c2.19 0 4.25.85 5.8 2.4a8.2 8.2 0 0 1 2.41 5.84c0 4.55-3.7 8.24-8.24 8.24a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.15.83.84-3.07-.2-.31a8.18 8.18 0 0 1-1.26-4.37c0-4.55 3.7-8.23 8.29-8.23Zm-3.9 4.4c-.16 0-.42.06-.64.31s-.85.83-.85 2.02.87 2.34.99 2.5c.12.16 1.7 2.6 4.13 3.65.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.44-.59 1.64-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28-.24-.12-1.44-.71-1.66-.79-.22-.08-.39-.12-.55.12-.16.24-.63.79-.77.95-.14.16-.28.18-.52.06-.24-.12-1.02-.38-1.94-1.2-.72-.64-1.2-1.43-1.34-1.67-.14-.24-.01-.37.11-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.36-.77-1.86-.2-.48-.4-.42-.55-.43h-.1Z"
+      />
+    </svg>
   );
 }

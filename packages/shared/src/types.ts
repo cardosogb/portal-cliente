@@ -50,16 +50,6 @@ export interface FinancialInstallment {
   paidAt?: string;
 }
 
-export interface Message {
-  id: string;
-  processId: string;
-  authorRole: "cliente" | "advogado";
-  authorName: string;
-  text: string;
-  sentAt: string;
-  read: boolean;
-}
-
 export interface LegalProcess {
   id: string;
   clientId: string;

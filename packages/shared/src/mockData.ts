@@ -1,9 +1,4 @@
-import type {
-  Client,
-  LegalProcess,
-  SatisfactionSurveyResult,
-  Message,
-} from "./types";
+import type { Client, LegalProcess, SatisfactionSurveyResult } from "./types";
 
 export const mockClients: Client[] = [
   {
@@ -150,27 +145,6 @@ export const mockProcesses: LegalProcess[] = [
         paidAt: "2026-03-09",
       },
     ],
-  },
-];
-
-export const mockMessages: Message[] = [
-  {
-    id: "msg_1",
-    processId: "proc_trabalhista_1",
-    authorRole: "advogado",
-    authorName: "Dra. Fernanda Lima",
-    text: "Olá Maria! Recebemos a contestação da empresa. Vamos analisar e te atualizamos em breve.",
-    sentAt: "2026-08-22T16:05:00-03:00",
-    read: true,
-  },
-  {
-    id: "msg_2",
-    processId: "proc_trabalhista_1",
-    authorRole: "cliente",
-    authorName: "Maria Souza",
-    text: "Obrigada! Envio o comprovante de endereço ainda essa semana.",
-    sentAt: "2026-08-22T18:40:00-03:00",
-    read: true,
   },
 ];
 

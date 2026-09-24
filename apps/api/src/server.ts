@@ -2,7 +2,6 @@ import cors from "cors";
 import express from "express";
 import { authRouter } from "./routes/auth";
 import { processesRouter } from "./routes/processes";
-import { messagesRouter } from "./routes/messages";
 import { adminRouter } from "./routes/admin";
 
 const app = express();
@@ -13,7 +12,6 @@ app.get("/health", (_req, res) => res.json({ status: "ok" }));
 
 app.use("/auth", authRouter);
 app.use("/processes", processesRouter);
-app.use("/messages", messagesRouter);
 app.use("/admin", adminRouter);
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 4000;
