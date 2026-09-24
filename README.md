@@ -64,8 +64,7 @@ real:
   comuns do escritório.
 - `packages/shared/src/contact.ts` — número de WhatsApp do escritório usado
   no botão "Enviar pelo WhatsApp do escritório" (mostrado quando há uma
-  pendência do cliente). **`OFFICE_WHATSAPP_NUMBER` é um placeholder** —
-  troque pelo número real antes de publicar em produção.
+  pendência do cliente).
 
 ## Funcionalidades implementadas (MVP)
 

@@ -1,8 +1,7 @@
 /**
  * Número de WhatsApp do escritório, no formato internacional (só dígitos).
- * Placeholder — troque pelo número real antes de publicar em produção.
  */
-export const OFFICE_WHATSAPP_NUMBER = "5511900000000";
+export const OFFICE_WHATSAPP_NUMBER = "5527998210707";
 
 /**
  * Monta um link "wa.me" com uma mensagem pré-preenchida, para o cliente
