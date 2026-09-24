@@ -39,7 +39,7 @@ export default function LoginPage() {
     >
       <div className="card" style={{ maxWidth: 420, width: "100%" }}>
         <div style={{ marginBottom: 20 }}>
-          <Logo size={48} />
+          <Logo height={56} variant="full" />
         </div>
         <h1 style={{ fontSize: "1.6rem", margin: "0 0 6px" }}>Portal do Cliente</h1>
         <p style={{ margin: "0 0 24px", color: "var(--text-muted)", fontSize: "0.9rem" }}>

@@ -31,7 +31,7 @@ export default function DashboardScreen() {
   return (
     <View style={styles.container}>
       <View style={{ marginBottom: 16 }}>
-        <Logo size={32} />
+        <Logo height={32} variant="full" />
       </View>
       <Text style={styles.sectionTitle}>Seus processos</Text>
       {error && <Text style={styles.error}>{error}</Text>}

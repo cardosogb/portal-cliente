@@ -28,7 +28,7 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <View style={{ marginBottom: 20 }}>
-        <Logo size={48} variant="dark" />
+        <Logo height={56} variant="icon" />
       </View>
       <Text style={styles.title}>Portal do Cliente</Text>
       <Text style={styles.subtitle}>Acompanhe seu processo aqui, sem precisar ligar para o escritório.</Text>

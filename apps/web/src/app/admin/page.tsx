@@ -22,7 +22,7 @@ export default function AdminPage() {
   return (
     <div>
       <nav className="top-nav">
-        <Logo size={32} variant="dark" />
+        <Logo height={28} variant="icon" />
         <Link href="/dashboard" style={{ color: "var(--white)", fontSize: "0.85rem" }}>Voltar ao portal do cliente</Link>
       </nav>
       <main className="container">
