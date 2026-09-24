@@ -31,9 +31,9 @@ export default function DashboardPage() {
   return (
     <div>
       <nav className="top-nav">
-        <Logo height={28} variant="icon" />
+        <Logo height={36} variant="icon" />
         <div style={{ display: "flex", gap: 12 }}>
-          <Link href="/admin" style={{ color: "var(--brass-light)", fontSize: "0.85rem" }}>
+          <Link href="/admin" style={{ color: "#c7ccd8", fontSize: "0.85rem" }}>
             Painel interno
           </Link>
           <button className="btn-secondary" onClick={logout} style={{ color: "var(--white)", borderColor: "#3a4a6b" }}>
