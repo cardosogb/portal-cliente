@@ -1,4 +1,4 @@
-import type { Client, LegalProcess, SatisfactionSurveyResult } from "./types";
+import type { Client, LegalProcess, SatisfactionSurveyResult, StaffUser } from "./types";
 
 export const mockClients: Client[] = [
   {
@@ -14,6 +14,19 @@ export const mockClients: Client[] = [
     email: "joao.pereira@example.com",
     phone: "+55 11 99876-5432",
     lastAccessAt: "2026-08-11T09:10:00-03:00",
+  },
+];
+
+/**
+ * Contas do escritório com acesso ao painel interno. O login identifica
+ * automaticamente esse perfil pelo e-mail — não existe mais um botão
+ * manual para "entrar como equipe" dentro do portal do cliente.
+ */
+export const mockStaffUsers: StaffUser[] = [
+  {
+    id: "staff_leandro",
+    name: "Leandro Miranda",
+    email: "leandro@fernandomiranda.adv.br",
   },
 ];
 

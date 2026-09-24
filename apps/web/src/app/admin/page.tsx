@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { getAdminOverview, getToken, type AdminOverview } from "@/lib/api";
+import { clearToken, getAdminOverview, getRole, getToken, type AdminOverview } from "@/lib/api";
 import { formatDatePtBR, statusLabel } from "@portal/shared";
 import { Logo } from "@/components/Logo";
 
@@ -16,14 +15,25 @@ export default function AdminPage() {
       router.push("/");
       return;
     }
+    if (getRole() !== "escritorio") {
+      router.push("/dashboard");
+      return;
+    }
     getAdminOverview().then(setData);
   }, [router]);
+
+  function logout() {
+    clearToken();
+    router.push("/");
+  }
 
   return (
     <div>
       <nav className="top-nav">
         <Logo height={36} variant="icon" />
-        <Link href="/dashboard" style={{ color: "var(--white)", fontSize: "0.85rem" }}>Voltar ao portal do cliente</Link>
+        <button className="btn-secondary" onClick={logout} style={{ color: "var(--white)", borderColor: "#3a4a6b" }}>
+          Sair
+        </button>
       </nav>
       <main className="container">
         <h1 className="serif" style={{ marginBottom: 4 }}>Painel interno</h1>

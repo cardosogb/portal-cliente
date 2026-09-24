@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { advboxClient } from "../integrations/advboxAdapter";
 import { mockClients, mockSatisfaction } from "@portal/shared";
-import { requireAuth } from "../auth";
+import { requireAuth, requireRole } from "../auth";
 
 export const adminRouter = Router();
 
-adminRouter.use(requireAuth);
+adminRouter.use(requireAuth, requireRole("escritorio"));
 
 const STALE_DAYS_THRESHOLD = 15;
 

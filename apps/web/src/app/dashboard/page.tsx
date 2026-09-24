@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { LegalProcess } from "@portal/shared";
 import { areaLabel, statusLabel } from "@portal/shared";
-import { clearToken, getToken, listProcesses } from "@/lib/api";
+import { clearToken, getRole, getToken, listProcesses } from "@/lib/api";
 import { Logo } from "@/components/Logo";
 
 export default function DashboardPage() {
@@ -16,6 +16,10 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!getToken()) {
       router.push("/");
+      return;
+    }
+    if (getRole() === "escritorio") {
+      router.push("/admin");
       return;
     }
     listProcesses()
@@ -32,14 +36,9 @@ export default function DashboardPage() {
     <div>
       <nav className="top-nav">
         <Logo height={36} variant="icon" />
-        <div style={{ display: "flex", gap: 12 }}>
-          <Link href="/admin" style={{ color: "#c7ccd8", fontSize: "0.85rem" }}>
-            Painel interno
-          </Link>
-          <button className="btn-secondary" onClick={logout} style={{ color: "var(--white)", borderColor: "#3a4a6b" }}>
-            Sair
-          </button>
-        </div>
+        <button className="btn-secondary" onClick={logout} style={{ color: "var(--white)", borderColor: "#3a4a6b" }}>
+          Sair
+        </button>
       </nav>
       <main className="container">
         <h1 className="serif" style={{ fontSize: "1.6rem" }}>Seus processos</h1>

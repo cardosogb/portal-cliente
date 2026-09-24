@@ -17,8 +17,8 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      await login(email, password);
-      router.push("/dashboard");
+      const result = await login(email, password);
+      router.push(result.role === "escritorio" ? "/admin" : "/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao entrar.");
     } finally {
@@ -74,7 +74,9 @@ export default function LoginPage() {
           </button>
         </form>
         <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: 16 }}>
-          Demo: qualquer senha funciona para maria.souza@example.com
+          Demo: qualquer senha funciona. Use maria.souza@example.com para
+          entrar como cliente, ou leandro@fernandomiranda.adv.br para
+          entrar no painel interno do escritório.
         </p>
       </div>
     </main>

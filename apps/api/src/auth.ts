@@ -25,3 +25,12 @@ export function requireAuth(req: AuthedRequest, res: Response, next: NextFunctio
     return res.status(401).json({ error: "Token inválido ou expirado." });
   }
 }
+
+export function requireRole(role: AuthSession["role"]) {
+  return (req: AuthedRequest, res: Response, next: NextFunction) => {
+    if (req.session?.role !== role) {
+      return res.status(403).json({ error: "Acesso não permitido para este perfil." });
+    }
+    next();
+  };
+}

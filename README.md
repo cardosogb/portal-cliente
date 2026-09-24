@@ -33,7 +33,11 @@ pnpm dev:web
 pnpm dev:mobile
 ```
 
-Login de demonstração: e-mail `maria.souza@example.com`, qualquer senha.
+Login de demonstração (qualquer senha funciona):
+- Cliente: `maria.souza@example.com` → cai no portal do cliente.
+- Equipe do escritório: `leandro@fernandomiranda.adv.br` → cai direto no
+  painel interno. O perfil é identificado automaticamente pelo e-mail no
+  login — não existe um botão para "trocar" de portal.
 
 O site usa `NEXT_PUBLIC_API_URL` (padrão `http://localhost:4000`) e o app
 mobile usa `extra.apiUrl` em `apps/mobile/app.json` para apontar para a API.

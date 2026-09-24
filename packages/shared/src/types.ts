@@ -15,6 +15,13 @@ export interface Client {
   lastAccessAt: string | null;
 }
 
+/** Membro do escritório com acesso ao painel interno. */
+export interface StaffUser {
+  id: string;
+  name: string;
+  email: string;
+}
+
 export interface TimelineEvent {
   id: string;
   date: string; // ISO date
@@ -85,4 +92,5 @@ export interface AuthSession {
   token: string;
   role: "cliente" | "escritorio";
   clientId?: string;
+  staffId?: string;
 }
