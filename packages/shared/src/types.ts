@@ -10,6 +10,9 @@ export type ProcessArea =
 export interface Client {
   id: string;
   name: string;
+  cpf: string;
+  /** ISO (yyyy-mm-dd). O login usa apenas o dia e o mês (DDMM) como senha. */
+  birthDate: string;
   email: string;
   phone: string;
   lastAccessAt: string | null;
@@ -19,6 +22,9 @@ export interface Client {
 export interface StaffUser {
   id: string;
   name: string;
+  cpf: string;
+  /** ISO (yyyy-mm-dd). O login usa apenas o dia e o mês (DDMM) como senha. */
+  birthDate: string;
   email: string;
 }
 

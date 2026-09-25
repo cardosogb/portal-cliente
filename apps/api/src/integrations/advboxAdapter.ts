@@ -11,13 +11,15 @@
 import {
   mockClients,
   mockProcesses,
+  onlyDigits,
+  birthDateToDDMM,
   type Client,
   type LegalProcess,
 } from "@portal/shared";
 
 export interface AdvboxClient {
   listClients(): Promise<Client[]>;
-  getClientByCredentials(email: string, password: string): Promise<Client | null>;
+  getClientByCpfAndBirthDate(cpf: string, birthDateDDMM: string): Promise<Client | null>;
   listProcessesByClient(clientId: string): Promise<LegalProcess[]>;
   getProcess(processId: string): Promise<LegalProcess | null>;
   listAllProcesses(): Promise<LegalProcess[]>;
@@ -28,10 +30,11 @@ class MockAdvboxClient implements AdvboxClient {
     return mockClients;
   }
 
-  async getClientByCredentials(email: string): Promise<Client | null> {
-    // MVP: qualquer senha é aceita para os clientes mockados, para
-    // facilitar demonstração. Autenticação real virá do ADVBOX/SSO.
-    return mockClients.find((c) => c.email.toLowerCase() === email.toLowerCase()) ?? null;
+  async getClientByCpfAndBirthDate(cpf: string, birthDateDDMM: string): Promise<Client | null> {
+    const cpfDigits = onlyDigits(cpf);
+    const client = mockClients.find((c) => onlyDigits(c.cpf) === cpfDigits);
+    if (!client || birthDateToDDMM(client.birthDate) !== birthDateDDMM) return null;
+    return client;
   }
 
   async listProcessesByClient(clientId: string): Promise<LegalProcess[]> {

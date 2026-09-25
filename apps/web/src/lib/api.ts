@@ -52,10 +52,10 @@ export interface LoginResult {
   staff?: { id: string; name: string };
 }
 
-export async function login(email: string, password: string): Promise<LoginResult> {
+export async function login(cpf: string, birthDate: string): Promise<LoginResult> {
   const data = await request<{ token: string } & LoginResult>("/auth/login", {
     method: "POST",
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ cpf, birthDate }),
   });
   setToken(data.token);
   setRole(data.role);

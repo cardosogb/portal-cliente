@@ -35,13 +35,13 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return res.json();
 }
 
-export async function login(email: string, password: string) {
-  const data = await request<{ token: string; client: { name: string } }>("/auth/login", {
+export async function login(cpf: string, birthDate: string) {
+  const data = await request<{ token: string; role: string; client?: { name: string } }>("/auth/login", {
     method: "POST",
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ cpf, birthDate }),
   });
   await setToken(data.token);
-  return data.client;
+  return data;
 }
 
 export function listProcesses() {

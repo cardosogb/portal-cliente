@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { formatCpf, onlyDigits } from "@portal/shared";
 import { login } from "@/lib/api";
 import { Logo } from "@/components/Logo";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("maria.souza@example.com");
-  const [password, setPassword] = useState("");
+  const [cpf, setCpf] = useState("123.456.789-09");
+  const [birthDate, setBirthDate] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -17,7 +18,7 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      const result = await login(email, password);
+      const result = await login(cpf, birthDate);
       router.push(result.role === "escritorio" ? "/admin" : "/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao entrar.");
@@ -47,36 +48,45 @@ export default function LoginPage() {
         </p>
         <form onSubmit={handleSubmit}>
           <label style={{ display: "block", marginBottom: 12 }}>
-            <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>E-mail</span>
+            <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>CPF</span>
             <input
               className="input"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              inputMode="numeric"
+              placeholder="000.000.000-00"
+              value={cpf}
+              onChange={(e) => setCpf(formatCpf(e.target.value))}
+              maxLength={14}
               required
               style={{ marginTop: 4 }}
             />
           </label>
-          <label style={{ display: "block", marginBottom: 20 }}>
-            <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Senha</span>
+          <label style={{ display: "block", marginBottom: 8 }}>
+            <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Data de nascimento (dia e mês)</span>
             <input
               className="input"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              type="text"
+              inputMode="numeric"
+              placeholder="DDMM"
+              value={birthDate}
+              onChange={(e) => setBirthDate(onlyDigits(e.target.value).slice(0, 4))}
+              maxLength={4}
               required
               style={{ marginTop: 4 }}
             />
           </label>
+          <p style={{ margin: "0 0 20px", fontSize: "0.78rem", color: "var(--text-muted)" }}>
+            Use sua senha do portal: os 2 dígitos do dia seguidos dos 2 dígitos do mês em
+            que você nasceu. Exemplo: nascido em 5 de março → 0503.
+          </p>
           {error && <p style={{ color: "var(--wine)", marginBottom: 16 }}>{error}</p>}
           <button className="btn-primary" type="submit" disabled={loading} style={{ width: "100%" }}>
             {loading ? "Entrando..." : "Entrar"}
           </button>
         </form>
         <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: 16 }}>
-          Demo: qualquer senha funciona. Use maria.souza@example.com para
-          entrar como cliente, ou leandro@fernandomiranda.adv.br para
-          entrar no painel interno do escritório.
+          Demo: CPF 123.456.789-09, nascimento 1204 → entra como cliente.
+          CPF 111.222.333-96, nascimento 2207 → entra no painel interno.
         </p>
       </div>
     </main>

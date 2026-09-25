@@ -33,11 +33,19 @@ pnpm dev:web
 pnpm dev:mobile
 ```
 
-Login de demonstração (qualquer senha funciona):
-- Cliente: `maria.souza@example.com` → cai no portal do cliente.
-- Equipe do escritório: `leandro@fernandomiranda.adv.br` → cai direto no
-  painel interno. O perfil é identificado automaticamente pelo e-mail no
+O login é feito por **CPF + data de nascimento** (apenas dia e mês, formato
+`DDMM` — ex.: nascido em 5 de março → `0503`), em vez de e-mail e senha.
+Login de demonstração:
+- Cliente: CPF `123.456.789-09`, nascimento `1204` → cai no portal do cliente.
+- Equipe do escritório: CPF `111.222.333-96`, nascimento `2207` → cai direto
+  no painel interno. O perfil é identificado automaticamente pelo CPF no
   login — não existe um botão para "trocar" de portal.
+
+⚠️ Nota de segurança: usar só o dia e o mês de nascimento como senha é uma
+simplificação da proposta original, pensada para reduzir fricção no MVP —
+o espaço de senhas é pequeno (366 combinações) e previsível. Antes de ir
+para produção, vale reforçar com 2FA (ex.: código por SMS/WhatsApp) ou
+usar a senha completa (DDMMAAAA) e/ou limitar tentativas de login.
 
 O site usa `NEXT_PUBLIC_API_URL` (padrão `http://localhost:4000`) e o app
 mobile usa `extra.apiUrl` em `apps/mobile/app.json` para apontar para a API.

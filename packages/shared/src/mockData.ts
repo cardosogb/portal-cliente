@@ -4,6 +4,8 @@ export const mockClients: Client[] = [
   {
     id: "cli_maria",
     name: "Maria Souza",
+    cpf: "123.456.789-09",
+    birthDate: "1988-04-12",
     email: "maria.souza@example.com",
     phone: "+55 11 91234-5678",
     lastAccessAt: "2026-09-20T14:32:00-03:00",
@@ -11,6 +13,8 @@ export const mockClients: Client[] = [
   {
     id: "cli_joao",
     name: "João Pereira",
+    cpf: "987.654.321-00",
+    birthDate: "1975-11-30",
     email: "joao.pereira@example.com",
     phone: "+55 11 99876-5432",
     lastAccessAt: "2026-08-11T09:10:00-03:00",
@@ -19,13 +23,15 @@ export const mockClients: Client[] = [
 
 /**
  * Contas do escritório com acesso ao painel interno. O login identifica
- * automaticamente esse perfil pelo e-mail — não existe mais um botão
+ * automaticamente esse perfil pelo CPF — não existe mais um botão
  * manual para "entrar como equipe" dentro do portal do cliente.
  */
 export const mockStaffUsers: StaffUser[] = [
   {
     id: "staff_leandro",
     name: "Leandro Miranda",
+    cpf: "111.222.333-96",
+    birthDate: "1980-07-22",
     email: "leandro@fernandomiranda.adv.br",
   },
 ];
