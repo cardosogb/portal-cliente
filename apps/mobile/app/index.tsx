@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import { formatCpf, onlyDigits } from "@portal/shared";
+import { onlyDigits } from "@portal/shared";
 import { login } from "@/lib/api";
 import { colors } from "@/theme/colors";
 import { Logo } from "@/components/Logo";
 
 export default function LoginScreen() {
   const router = useRouter();
-  const [cpf, setCpf] = useState("123.456.789-09");
+  const [cpf, setCpf] = useState("12345678909");
   const [birthDate, setBirthDate] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -42,10 +42,10 @@ export default function LoginScreen() {
       <TextInput
         style={styles.input}
         value={cpf}
-        onChangeText={(text) => setCpf(formatCpf(text))}
+        onChangeText={(text) => setCpf(onlyDigits(text).slice(0, 11))}
         keyboardType="numeric"
-        placeholder="000.000.000-00"
-        maxLength={14}
+        placeholder="Só números, sem pontuação"
+        maxLength={11}
       />
 
       <Text style={styles.label}>Data de nascimento (dia e mês)</Text>
@@ -68,7 +68,7 @@ export default function LoginScreen() {
         <Text style={styles.buttonText}>{loading ? "Entrando..." : "Entrar"}</Text>
       </Pressable>
 
-      <Text style={styles.hint}>Demo: CPF 123.456.789-09, nascimento 1204.</Text>
+      <Text style={styles.hint}>Demo: CPF 12345678909, nascimento 1204.</Text>
     </View>
   );
 }

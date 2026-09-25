@@ -34,10 +34,11 @@ pnpm dev:mobile
 ```
 
 O login é feito por **CPF + data de nascimento** (apenas dia e mês, formato
-`DDMM` — ex.: nascido em 5 de março → `0503`), em vez de e-mail e senha.
+`DDMM` — ex.: nascido em 5 de março → `0503`), em vez de e-mail e senha. O
+CPF é digitado sem pontuação (só os 11 números — sem `.` ou `-`).
 Login de demonstração:
-- Cliente: CPF `123.456.789-09`, nascimento `1204` → cai no portal do cliente.
-- Equipe do escritório: CPF `111.222.333-96`, nascimento `2207` → cai direto
+- Cliente: CPF `12345678909`, nascimento `1204` → cai no portal do cliente.
+- Equipe do escritório: CPF `11122233396`, nascimento `2207` → cai direto
   no painel interno. O perfil é identificado automaticamente pelo CPF no
   login — não existe um botão para "trocar" de portal.
 

@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { formatCpf, onlyDigits } from "@portal/shared";
+import { onlyDigits } from "@portal/shared";
 import { login } from "@/lib/api";
 import { Logo } from "@/components/Logo";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [cpf, setCpf] = useState("123.456.789-09");
+  const [cpf, setCpf] = useState("12345678909");
   const [birthDate, setBirthDate] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -53,10 +53,10 @@ export default function LoginPage() {
               className="input"
               type="text"
               inputMode="numeric"
-              placeholder="000.000.000-00"
+              placeholder="Só números, sem pontuação"
               value={cpf}
-              onChange={(e) => setCpf(formatCpf(e.target.value))}
-              maxLength={14}
+              onChange={(e) => setCpf(onlyDigits(e.target.value).slice(0, 11))}
+              maxLength={11}
               required
               style={{ marginTop: 4 }}
             />
@@ -85,8 +85,8 @@ export default function LoginPage() {
           </button>
         </form>
         <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: 16 }}>
-          Demo: CPF 123.456.789-09, nascimento 1204 → entra como cliente.
-          CPF 111.222.333-96, nascimento 2207 → entra no painel interno.
+          Demo: CPF 12345678909, nascimento 1204 → entra como cliente.
+          CPF 11122233396, nascimento 2207 → entra no painel interno.
         </p>
       </div>
     </main>
