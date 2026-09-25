@@ -74,7 +74,14 @@ real:
 - `apps/api/src/integrations/legalTranslator.ts` — dicionário inicial para
   traduzir andamentos jurídicos (como vêm do ADVBOX) em linguagem simples
   para o cliente; deve ser expandido conforme os tipos de movimentação mais
-  comuns do escritório.
+  comuns do escritório. Também é aqui que fica o **filtro de movimentações
+  que não devem chegar ao cliente** (`isHiddenFromClient` /
+  `movementsToClientTimeline`) — andamentos que só geram confusão e
+  ligações desnecessárias ao escritório, como os de RPV (Requisição de
+  Pequeno Valor). Quando a integração real do ADVBOX for implementada, a
+  timeline do cliente **precisa** passar por esse filtro antes de
+  qualquer exibição; a lista de padrões ocultos deve ser expandida
+  conforme mais casos como esse forem identificados.
 - `packages/shared/src/contact.ts` — número de WhatsApp do escritório usado
   no botão "Enviar pelo WhatsApp do escritório" (mostrado quando há uma
   pendência do cliente).

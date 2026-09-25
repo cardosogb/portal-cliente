@@ -7,6 +7,14 @@
  * `MockAdvboxClient` por uma implementação real que fale HTTP com a API
  * deles, mantendo a mesma interface `AdvboxClient` — nenhum outro código
  * da aplicação precisa mudar.
+ *
+ * IMPORTANTE: a implementação real de `getProcess`/`listProcessesByClient`
+ * deve montar `LegalProcess.timeline` passando as movimentações cruas do
+ * ADVBOX por `movementsToClientTimeline` (./legalTranslator.ts) — isso
+ * filtra movimentações que só geram confusão/ligações desnecessárias ao
+ * escritório (ex.: andamentos de RPV) antes de chegarem ao cliente, e
+ * traduz o restante para linguagem simples. Nunca monte a timeline do
+ * cliente direto a partir da resposta crua da API.
  */
 import {
   mockClients,
