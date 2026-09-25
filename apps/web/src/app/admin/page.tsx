@@ -9,6 +9,7 @@ import { Logo } from "@/components/Logo";
 export default function AdminPage() {
   const router = useRouter();
   const [data, setData] = useState<AdminOverview | null>(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (!getToken()) {
@@ -26,6 +27,14 @@ export default function AdminPage() {
     clearToken();
     router.push("/");
   }
+
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredRows = data?.rows.filter(
+    (r) =>
+      !normalizedSearch ||
+      r.clientName.toLowerCase().includes(normalizedSearch) ||
+      r.processNumber.toLowerCase().includes(normalizedSearch)
+  );
 
   return (
     <div>
@@ -51,6 +60,14 @@ export default function AdminPage() {
             </div>
 
             <h2 className="serif">Clientes e processos</h2>
+            <input
+              className="input"
+              type="text"
+              placeholder="Buscar por cliente ou número do processo..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{ marginBottom: 12 }}
+            />
             <div className="card" style={{ overflowX: "auto", marginBottom: 20 }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
@@ -63,15 +80,23 @@ export default function AdminPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.rows.map((r) => (
-                    <tr key={r.processNumber} style={{ borderBottom: "1px solid var(--border)" }}>
-                      <td style={{ padding: 8 }}>{r.clientName}</td>
-                      <td style={{ padding: 8 }}>{r.processNumber}</td>
-                      <td style={{ padding: 8 }}>{r.lawyerName}</td>
-                      <td style={{ padding: 8 }}>{r.lastAccessAt ? formatDatePtBR(r.lastAccessAt) : "—"}</td>
-                      <td style={{ padding: 8 }}>{statusLabel(r.status)}</td>
+                  {filteredRows && filteredRows.length > 0 ? (
+                    filteredRows.map((r) => (
+                      <tr key={r.processNumber} style={{ borderBottom: "1px solid var(--border)" }}>
+                        <td style={{ padding: 8 }}>{r.clientName}</td>
+                        <td style={{ padding: 8 }}>{r.processNumber}</td>
+                        <td style={{ padding: 8 }}>{r.lawyerName}</td>
+                        <td style={{ padding: 8 }}>{r.lastAccessAt ? formatDatePtBR(r.lastAccessAt) : "—"}</td>
+                        <td style={{ padding: 8 }}>{statusLabel(r.status)}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={5} style={{ padding: 8, color: "var(--text-muted)" }}>
+                        Nenhum cliente ou processo encontrado para "{search}".
+                      </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
