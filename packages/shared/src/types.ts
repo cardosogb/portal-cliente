@@ -31,8 +31,16 @@ export interface StaffUser {
 export interface TimelineEvent {
   id: string;
   date: string; // ISO date
-  /** Texto em linguagem simples, para o cliente leigo. */
+  /** Título em linguagem simples, para o cliente leigo (uma frase curta). */
   plainText: string;
+  /**
+   * Explicação um pouco mais completa, em linguagem simples: o que
+   * aconteceu, o que isso significa e o que vem a seguir. Mostrada junto
+   * com o título, não só o texto jurídico original escondido atrás de um
+   * clique — é o que evita o cliente ligar pro escritório perguntando
+   * "o que isso quer dizer?".
+   */
+  explanation: string;
   /** Texto jurídico original, como consta no processo. */
   originalText: string;
   /** Se este evento representa uma ação que o cliente precisa tomar. */

@@ -59,6 +59,8 @@ export const mockProcesses: LegalProcess[] = [
         id: "tl_1",
         date: "2026-09-05",
         plainText: "Seu advogado enviou um documento importante ao processo.",
+        explanation:
+          "Seu advogado analisou os documentos que a empresa apresentou e respondeu oficialmente a eles no processo, reforçando o seu lado antes da fase de provas. Você não precisa fazer nada agora — é só andamento normal do processo.",
         originalText:
           "Juntada de petição intercorrente com manifestação sobre os documentos apresentados pela parte reclamada.",
       },
@@ -66,6 +68,8 @@ export const mockProcesses: LegalProcess[] = [
         id: "tl_2",
         date: "2026-08-22",
         plainText: "A empresa (parte contrária) respondeu ao processo.",
+        explanation:
+          "A empresa apresentou a defesa dela, contestando o que você pediu. Isso é uma etapa normal e esperada do processo — agora seu advogado vai analisar os argumentos e preparar a próxima manifestação.",
         originalText:
           "Juntada de contestação apresentada pela reclamada, com preliminares e mérito.",
       },
@@ -73,6 +77,8 @@ export const mockProcesses: LegalProcess[] = [
         id: "tl_3",
         date: "2026-07-30",
         plainText: "O processo foi formalmente aberto na Justiça do Trabalho.",
+        explanation:
+          "Seu pedido foi registrado oficialmente e distribuído para a 1ª Vara do Trabalho. A partir daqui, a empresa vai ser notificada para se manifestar, dando início ao andamento do processo.",
         originalText:
           "Distribuição da reclamação trabalhista à 1ª Vara do Trabalho.",
       },
@@ -135,12 +141,16 @@ export const mockProcesses: LegalProcess[] = [
         id: "tl_4",
         date: "2026-06-14",
         plainText: "O INSS apresentou sua defesa no processo.",
+        explanation:
+          "O INSS respondeu ao seu pedido de benefício, apresentando os argumentos dele. Agora o juiz vai analisar as informações dos dois lados antes de decidir. Você não precisa fazer nada agora.",
         originalText: "Juntada de contestação apresentada pelo INSS.",
       },
       {
         id: "tl_5",
         date: "2026-03-02",
         plainText: "O processo foi formalmente aberto na Justiça Federal.",
+        explanation:
+          "Seu pedido foi registrado oficialmente e distribuído para a 3ª Vara Federal. A partir daqui, o INSS vai ser notificado para se manifestar sobre o seu pedido.",
         originalText: "Distribuição da ação previdenciária à 3ª Vara Federal.",
       },
     ],

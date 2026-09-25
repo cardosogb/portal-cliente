@@ -83,7 +83,8 @@ export default function ProcessScreen() {
         process.timeline.map((event) => (
           <View key={event.id} style={styles.card}>
             <Text style={styles.mutedSmall}>{formatDatePtBR(event.date)}</Text>
-            <Text style={{ marginVertical: 6 }}>{event.plainText}</Text>
+            <Text style={styles.tlPlain}>{event.plainText}</Text>
+            <Text style={styles.tlExplanation}>{event.explanation}</Text>
             <Pressable onPress={() => setExpanded((s) => ({ ...s, [event.id]: !s[event.id] }))}>
               <Text style={styles.link}>
                 {expanded[event.id] ? "Ocultar texto original" : "Ver texto original do processo"}
@@ -134,4 +135,6 @@ const styles = StyleSheet.create({
   card: { backgroundColor: colors.white, borderRadius: 12, padding: 14, borderWidth: 1, borderColor: colors.border, marginBottom: 10 },
   link: { color: colors.brass, fontSize: 13, fontWeight: "600" },
   original: { marginTop: 8, fontStyle: "italic", color: colors.textMuted, fontSize: 13 },
+  tlPlain: { marginTop: 6, marginBottom: 4, fontWeight: "600" },
+  tlExplanation: { marginBottom: 10, fontSize: 13.5, color: colors.textMuted },
 });

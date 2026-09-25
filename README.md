@@ -92,8 +92,10 @@ Do escopo da proposta original, a Fase 1 (MVP) e parte da Fase 3 já estão
 prototipadas end-to-end (com dados mockados):
 
 - [x] Login individual por cliente
-- [x] Linha do tempo do processo, com tradução para linguagem simples e
-      opção de ver o texto jurídico original
+- [x] Linha do tempo do processo, com título curto + explicação em
+      linguagem simples (o que aconteceu, o que significa e o que vem a
+      seguir — não só um título) para cada andamento, com opção de ver
+      o texto jurídico original por baixo
 - [x] Indicação da fase atual e previsão de prazo
 - [x] Ação pendente do cliente em destaque (ex.: "envie um documento até X"),
       com botão para resolver a pendência diretamente pelo WhatsApp do

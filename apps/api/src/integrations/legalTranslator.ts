@@ -3,24 +3,70 @@ import type { TimelineEvent } from "@portal/shared";
 /**
  * Tradutor de andamentos jurídicos para linguagem simples.
  *
- * Os casos mockados já trazem `plainText` pronto. Este dicionário é o
- * ponto de partida para quando os andamentos passarem a vir direto do
- * ADVBOX (que fornece o texto jurídico original, não a versão simples) —
+ * Cada padrão gera duas coisas para o cliente:
+ * - `plain`: um título curto (uma frase), para escanear a timeline rápido.
+ * - `explanation`: uma explicação de verdade, em 1-2 frases — o que
+ *   aconteceu, o que isso significa e o que vem a seguir (ou se não há
+ *   nada a fazer). É o que evita o cliente ligar perguntando "o que isso
+ *   quer dizer?" — não basta só o título.
+ *
+ * Os casos mockados já trazem `plainText`/`explanation` prontos. Este
+ * dicionário é o ponto de partida para quando os andamentos passarem a
+ * vir direto do ADVBOX (que fornece só o texto jurídico original) —
  * basta ir expandindo os padrões conforme os tipos de movimentação mais
  * comuns do escritório forem mapeados.
  */
-const PATTERNS: Array<{ match: RegExp; plain: string }> = [
-  { match: /distribui[cç][aã]o/i, plain: "Seu processo foi formalmente aberto na Justiça." },
-  { match: /jun[dt]ada de peti[cç][aã]o inicial/i, plain: "Seu processo foi protocolado — próxima etapa: citação da parte contrária." },
-  { match: /jun[dt]ada de contesta[cç][aã]o/i, plain: "A outra parte respondeu ao processo." },
-  { match: /audi[eê]ncia designada|design[aã]o de audi[eê]ncia/i, plain: "Uma audiência foi marcada para o seu processo." },
-  { match: /senten[cç]a/i, plain: "O juiz proferiu uma decisão (sentença) no seu processo." },
-  { match: /jun[dt]ada de peti[cç][aã]o/i, plain: "Seu advogado enviou um documento ao processo." },
+const PATTERNS: Array<{ match: RegExp; plain: string; explanation: string }> = [
+  {
+    match: /distribui[cç][aã]o/i,
+    plain: "Seu processo foi formalmente aberto na Justiça.",
+    explanation:
+      "Seu pedido foi registrado oficialmente e distribuído para uma vara. A partir daqui, a outra parte vai ser notificada para se manifestar, dando início ao andamento do processo.",
+  },
+  {
+    match: /jun[dt]ada de peti[cç][aã]o inicial/i,
+    plain: "Seu processo foi protocolado.",
+    explanation:
+      "O pedido inicial foi registrado formalmente. A próxima etapa é a citação: a outra parte vai ser avisada oficialmente sobre o processo para poder se defender.",
+  },
+  {
+    match: /jun[dt]ada de contesta[cç][aã]o/i,
+    plain: "A outra parte respondeu ao processo.",
+    explanation:
+      "A outra parte apresentou a defesa dela, contestando o que foi pedido. Isso é uma etapa normal e esperada — agora seu advogado vai analisar os argumentos e preparar a próxima manifestação.",
+  },
+  {
+    match: /audi[eê]ncia designada|design[aã]o de audi[eê]ncia/i,
+    plain: "Uma audiência foi marcada para o seu processo.",
+    explanation:
+      "O juiz marcou uma data para ouvir as partes envolvidas. Seu advogado vai te avisar com antecedência sobre data, horário e o que levar ou preparar.",
+  },
+  {
+    match: /senten[cç]a/i,
+    plain: "O juiz proferiu uma decisão (sentença) no seu processo.",
+    explanation:
+      "O juiz decidiu o processo. Seu advogado vai analisar o teor da decisão e te explicar o que ela significa na prática e quais são os próximos passos (inclusive se cabe recurso).",
+  },
+  {
+    match: /jun[dt]ada de peti[cç][aã]o/i,
+    plain: "Seu advogado enviou um documento ao processo.",
+    explanation:
+      "Seu advogado protocolou um novo documento ou manifestação no processo, dando andamento ao seu caso. Você não precisa fazer nada agora.",
+  },
 ];
+
+const DEFAULT_PLAIN = "Houve uma nova movimentação no seu processo.";
+const DEFAULT_EXPLANATION =
+  "Seu advogado já está ciente dessa movimentação e vai te avisar assim que houver alguma novidade importante ou se for necessário fazer algo.";
 
 export function translateLegalText(originalText: string): string {
   const hit = PATTERNS.find((p) => p.match.test(originalText));
-  return hit ? hit.plain : "Houve uma nova movimentação no seu processo.";
+  return hit ? hit.plain : DEFAULT_PLAIN;
+}
+
+export function explainLegalText(originalText: string): string {
+  const hit = PATTERNS.find((p) => p.match.test(originalText));
+  return hit ? hit.explanation : DEFAULT_EXPLANATION;
 }
 
 /**
@@ -77,6 +123,7 @@ export function movementsToClientTimeline(movements: RawAdvboxMovement[]): Timel
       id: `tl_${index}`,
       date: movement.date,
       plainText: translateLegalText(movement.text),
+      explanation: explainLegalText(movement.text),
       originalText: movement.text,
     }));
 }

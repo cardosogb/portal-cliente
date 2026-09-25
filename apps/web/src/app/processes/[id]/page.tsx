@@ -112,7 +112,8 @@ export default function ProcessPage() {
             {process.timeline.map((event) => (
               <div key={event.id} className="card">
                 <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>{formatDatePtBR(event.date)}</p>
-                <p style={{ margin: "6px 0" }}>{event.plainText}</p>
+                <p style={{ margin: "6px 0 4px", fontWeight: 600 }}>{event.plainText}</p>
+                <p style={{ margin: "0 0 10px", fontSize: "0.9rem", color: "var(--text-muted)" }}>{event.explanation}</p>
                 <button
                   className="btn-secondary"
                   style={{ fontSize: "0.8rem", padding: "6px 12px" }}
