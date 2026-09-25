@@ -111,6 +111,11 @@ button {
   color: var(--forest);
 }
 
+.pill-neutral {
+  background: var(--fog-2);
+  color: var(--text-muted);
+}
+
 .input {
   width: 100%;
   padding: 12px 14px;
@@ -126,4 +131,135 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+/* ---------- Admin: busca de clientes/processos ---------- */
+.admin-search-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 6px 4px 44px;
+  box-shadow: 0 1px 2px rgba(18, 32, 61, 0.04);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.admin-search-bar:focus-within {
+  border-color: var(--brass);
+  box-shadow: 0 0 0 3px rgba(173, 138, 61, 0.14);
+}
+
+.admin-search-icon {
+  position: absolute;
+  left: 16px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.admin-search-bar input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 10px 4px;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.admin-search-clear {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: var(--fog-2);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-search-clear:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+.admin-search-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 10px 2px 12px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.admin-search-meta strong {
+  color: var(--text);
+}
+
+/* ---------- Admin: tabela de clientes/processos ---------- */
+.admin-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.admin-table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tbody tr:hover td {
+  background: var(--fog);
+}
+
+.admin-client-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-avatar {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--brass-light);
+  font-family: "Fraunces", serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-empty-state {
+  padding: 32px 12px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.admin-empty-state .icon {
+  font-size: 1.6rem;
+  margin-bottom: 8px;
 }

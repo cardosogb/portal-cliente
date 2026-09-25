@@ -6,6 +6,19 @@ import { clearToken, getAdminOverview, getRole, getToken, type AdminOverview } f
 import { formatDatePtBR, statusLabel } from "@portal/shared";
 import { Logo } from "@/components/Logo";
 
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  const first = parts[0]?.[0] ?? "";
+  const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
+  return (first + last).toUpperCase();
+}
+
+function statusPillClass(status: string): string {
+  if (status === "concluido") return "pill pill-ok";
+  if (status === "suspenso") return "pill pill-neutral";
+  return "pill pill-action";
+}
+
 export default function AdminPage() {
   const router = useRouter();
   const [data, setData] = useState<AdminOverview | null>(null);
@@ -59,41 +72,81 @@ export default function AdminPage() {
               <p style={{ margin: "4px 0 0", fontSize: "2rem", fontWeight: 700 }}>{data.staleProcessesCount}</p>
             </div>
 
-            <h2 className="serif">Clientes e processos</h2>
-            <input
-              className="input"
-              type="text"
-              placeholder="Buscar por cliente ou número do processo..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={{ marginBottom: 12 }}
-            />
-            <div className="card" style={{ overflowX: "auto", marginBottom: 20 }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <h2 className="serif" style={{ marginBottom: 10 }}>Clientes e processos</h2>
+
+            <div className="admin-search-bar">
+              <svg className="admin-search-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+                <path d="M21 21L16.65 16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Buscar por cliente ou número do processo..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              {search && (
+                <button
+                  type="button"
+                  className="admin-search-clear"
+                  onClick={() => setSearch("")}
+                  aria-label="Limpar busca"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            <div className="admin-search-meta">
+              <span>
+                {search ? (
+                  <>
+                    <strong>{filteredRows?.length ?? 0}</strong> de {data.rows.length} processos
+                  </>
+                ) : (
+                  <>
+                    <strong>{data.rows.length}</strong> processos no total
+                  </>
+                )}
+              </span>
+            </div>
+
+            <div className="card" style={{ overflowX: "auto", marginBottom: 20, padding: 0 }}>
+              <table className="admin-table">
                 <thead>
-                  <tr style={{ textAlign: "left", borderBottom: "1px solid var(--border)" }}>
-                    <th style={{ padding: 8 }}>Cliente</th>
-                    <th style={{ padding: 8 }}>Processo</th>
-                    <th style={{ padding: 8 }}>Advogado</th>
-                    <th style={{ padding: 8 }}>Último acesso</th>
-                    <th style={{ padding: 8 }}>Status</th>
+                  <tr>
+                    <th>Cliente</th>
+                    <th>Processo</th>
+                    <th>Advogado</th>
+                    <th>Último acesso</th>
+                    <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredRows && filteredRows.length > 0 ? (
                     filteredRows.map((r) => (
-                      <tr key={r.processNumber} style={{ borderBottom: "1px solid var(--border)" }}>
-                        <td style={{ padding: 8 }}>{r.clientName}</td>
-                        <td style={{ padding: 8 }}>{r.processNumber}</td>
-                        <td style={{ padding: 8 }}>{r.lawyerName}</td>
-                        <td style={{ padding: 8 }}>{r.lastAccessAt ? formatDatePtBR(r.lastAccessAt) : "—"}</td>
-                        <td style={{ padding: 8 }}>{statusLabel(r.status)}</td>
+                      <tr key={r.processNumber}>
+                        <td>
+                          <div className="admin-client-cell">
+                            <span className="admin-avatar">{initials(r.clientName)}</span>
+                            <span>{r.clientName}</span>
+                          </div>
+                        </td>
+                        <td style={{ fontVariantNumeric: "tabular-nums" }}>{r.processNumber}</td>
+                        <td>{r.lawyerName}</td>
+                        <td>{r.lastAccessAt ? formatDatePtBR(r.lastAccessAt) : "—"}</td>
+                        <td>
+                          <span className={statusPillClass(r.status)}>{statusLabel(r.status)}</span>
+                        </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={5} style={{ padding: 8, color: "var(--text-muted)" }}>
-                        Nenhum cliente ou processo encontrado para "{search}".
+                      <td colSpan={5}>
+                        <div className="admin-empty-state">
+                          <div className="icon">🔍</div>
+                          Nenhum cliente ou processo encontrado para &ldquo;{search}&rdquo;.
+                        </div>
                       </td>
                     </tr>
                   )}
