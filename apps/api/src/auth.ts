@@ -1,9 +1,13 @@
 import jwt from "jsonwebtoken";
+import { randomUUID } from "crypto";
 import type { NextFunction, Request, Response } from "express";
 import type { AuthSession } from "@portal/shared";
+import { isRevoked, registerSession } from "./sessionStore";
 
 const DEV_SECRET = "dev-secret-do-not-use-in-production";
 const JWT_SECRET = process.env.JWT_SECRET ?? DEV_SECRET;
+
+export const SESSION_COOKIE = "portal_session";
 
 /**
  * Trava a inicialização em produção se alguém esquecer de configurar um
@@ -19,25 +23,68 @@ export function assertProductionSecrets() {
   }
 }
 
-export function signSession(session: Omit<AuthSession, "token">): string {
-  return jwt.sign(session, JWT_SECRET, { expiresIn: "7d" });
+export function signSession(session: Omit<AuthSession, "token">): { token: string; jti: string } {
+  const jti = randomUUID();
+  const token = jwt.sign(session, JWT_SECRET, { expiresIn: "7d", jwtid: jti });
+  registerSession(jti, session);
+  return { token, jti };
 }
 
 export interface AuthedRequest extends Request {
   session?: AuthSession;
+  sessionJti?: string;
+}
+
+/**
+ * Opções para o cookie de sessão. `httpOnly` impede o JavaScript da
+ * página de ler o token (mitiga roubo via XSS), diferente de guardar em
+ * `localStorage`. `sameSite: "lax"` cobre o caso de uso daqui (site e API
+ * no mesmo domínio-base) sem precisar de token CSRF separado — veja nota
+ * em routes/auth.ts.
+ */
+export function sessionCookieOptions() {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax" as const,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: "/",
+  };
+}
+
+/**
+ * Opções para *apagar* o cookie no logout — sem `maxAge`. O
+ * `res.clearCookie()` do Express recalcula `expires` a partir de
+ * `maxAge` quando ele está presente nas opções, o que sobrescreve a data
+ * no passado que o clearCookie tentou colocar e o cookie nunca expira de
+ * verdade no navegador.
+ */
+export function clearSessionCookieOptions() {
+  const { maxAge: _maxAge, ...rest } = sessionCookieOptions();
+  return rest;
 }
 
 export function requireAuth(req: AuthedRequest, res: Response, next: NextFunction) {
+  // O site usa o cookie httpOnly (não acessível via JS); o app mobile,
+  // que não tem esse conceito, manda o token por Authorization: Bearer.
+  const cookieToken = req.cookies?.[SESSION_COOKIE];
   const header = req.headers.authorization;
-  if (!header?.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Token ausente." });
+  const bearerToken = header?.startsWith("Bearer ") ? header.slice("Bearer ".length) : null;
+  const token = cookieToken ?? bearerToken;
+
+  if (!token) {
+    return res.status(401).json({ error: "Sessão ausente." });
   }
-  const token = header.slice("Bearer ".length);
   try {
-    req.session = jwt.verify(token, JWT_SECRET) as AuthSession;
+    const decoded = jwt.verify(token, JWT_SECRET) as AuthSession & { jti: string };
+    if (isRevoked(decoded.jti)) {
+      return res.status(401).json({ error: "Sessão encerrada. Entre novamente." });
+    }
+    req.session = decoded;
+    req.sessionJti = decoded.jti;
     next();
   } catch {
-    return res.status(401).json({ error: "Token inválido ou expirado." });
+    return res.status(401).json({ error: "Sessão inválida ou expirada." });
   }
 }
 

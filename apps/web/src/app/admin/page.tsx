@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { clearToken, getAdminOverview, getRole, getToken, type AdminOverview } from "@/lib/api";
+import { getAdminOverview, getAuditLog, getSession, logout as apiLogout, type AdminOverview, type AuditEntry } from "@/lib/api";
 import { formatDatePtBR, statusLabel } from "@portal/shared";
 import { Logo } from "@/components/Logo";
 
@@ -30,22 +30,30 @@ export default function AdminPage() {
   const router = useRouter();
   const [data, setData] = useState<AdminOverview | null>(null);
   const [search, setSearch] = useState("");
+  const [auditLog, setAuditLog] = useState<AuditEntry[] | null>(null);
+  const [showAuditLog, setShowAuditLog] = useState(false);
 
   useEffect(() => {
-    if (!getToken()) {
-      router.push("/");
-      return;
-    }
-    if (getRole() !== "escritorio") {
-      router.push("/dashboard");
-      return;
-    }
-    getAdminOverview().then(setData);
+    getSession().then((session) => {
+      if (!session) {
+        router.push("/");
+        return;
+      }
+      if (session.role !== "escritorio") {
+        router.push("/dashboard");
+        return;
+      }
+      getAdminOverview().then(setData);
+    });
   }, [router]);
 
+  function toggleAuditLog() {
+    setShowAuditLog((v) => !v);
+    if (!auditLog) getAuditLog().then((d) => setAuditLog(d.entries));
+  }
+
   function logout() {
-    clearToken();
-    router.push("/");
+    apiLogout().finally(() => router.push("/"));
   }
 
   const normalizedSearch = search.trim().toLowerCase();
@@ -191,6 +199,44 @@ export default function AdminPage() {
                   <span>{s.averageScore.toFixed(1)} ★ ({s.responseCount} respostas)</span>
                 </div>
               ))}
+            </div>
+
+            <div style={{ marginTop: 24 }}>
+              <button className="btn-secondary" onClick={toggleAuditLog}>
+                {showAuditLog ? "Ocultar" : "Ver"} log de acessos ao painel
+              </button>
+              <p style={{ margin: "6px 0 0", fontSize: "0.78rem", color: "var(--text-muted)" }}>
+                Registro de quem acessou o painel interno e quando — para transparência e auditoria.
+              </p>
+              {showAuditLog && (
+                <div className="card" style={{ overflowX: "auto", marginTop: 12, padding: 0 }}>
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Quando</th>
+                        <th>Quem</th>
+                        <th>Ação</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {!auditLog && (
+                        <tr>
+                          <td colSpan={3}>Carregando...</td>
+                        </tr>
+                      )}
+                      {auditLog?.map((entry, i) => (
+                        <tr key={i}>
+                          <td style={{ fontVariantNumeric: "tabular-nums" }}>
+                            {new Date(entry.at).toLocaleString("pt-BR")}
+                          </td>
+                          <td>{entry.staffName}</td>
+                          <td style={{ fontFamily: "monospace", fontSize: "0.8rem" }}>{entry.action}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </>
         )}

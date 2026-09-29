@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { LegalProcess } from "@portal/shared";
 import { areaLabel, statusLabel } from "@portal/shared";
-import { clearToken, getRole, getToken, listProcesses } from "@/lib/api";
+import { getSession, listProcesses, logout as apiLogout } from "@/lib/api";
 import { Logo } from "@/components/Logo";
 
 export default function DashboardPage() {
@@ -14,22 +14,23 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!getToken()) {
-      router.push("/");
-      return;
-    }
-    if (getRole() === "escritorio") {
-      router.push("/admin");
-      return;
-    }
-    listProcesses()
-      .then((data) => setProcesses(data.processes))
-      .catch((err) => setError(err instanceof Error ? err.message : "Erro ao carregar."));
+    getSession().then((session) => {
+      if (!session) {
+        router.push("/");
+        return;
+      }
+      if (session.role === "escritorio") {
+        router.push("/admin");
+        return;
+      }
+      listProcesses()
+        .then((data) => setProcesses(data.processes))
+        .catch((err) => setError(err instanceof Error ? err.message : "Erro ao carregar."));
+    });
   }, [router]);
 
   function logout() {
-    clearToken();
-    router.push("/");
+    apiLogout().finally(() => router.push("/"));
   }
 
   return (

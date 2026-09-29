@@ -1,10 +1,20 @@
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
+import { z } from "zod";
 import { onlyDigits, isValidCpf } from "@portal/shared";
 import { advboxClient } from "../integrations/advboxAdapter";
 import { staffDirectory } from "../integrations/staffDirectory";
-import { signSession } from "../auth";
+import {
+  clearSessionCookieOptions,
+  requireAuth,
+  sessionCookieOptions,
+  signSession,
+  SESSION_COOKIE,
+  type AuthedRequest,
+} from "../auth";
+import { revokeSession } from "../sessionStore";
 import { msUntilUnlocked, registerFailure, registerSuccess } from "../loginLockout";
+import { validateBody } from "../middleware/validate";
 
 export const authRouter = Router();
 
@@ -20,18 +30,24 @@ const loginRateLimit = rateLimit({
   message: { error: "Muitas tentativas de login. Tente novamente em alguns minutos." },
 });
 
-authRouter.post("/login", loginRateLimit, async (req, res) => {
-  const { cpf, birthDate } = req.body ?? {};
-  if (!cpf || !birthDate) {
-    return res.status(400).json({ error: "Informe CPF (ou telefone, se você for da equipe) e data de nascimento." });
-  }
-  if (!/^\d{4}$/.test(birthDate)) {
-    return res.status(400).json({ error: "Data de nascimento inválida. Use o formato DDMM." });
-  }
+const loginSchema = z.object({
+  cpf: z
+    .string({ error: "Informe CPF (ou telefone, se você for da equipe)." })
+    .refine((v) => onlyDigits(v).length === 11, "Informe um CPF ou telefone com 11 números."),
+  birthDate: z
+    .string({ error: "Informe a data de nascimento." })
+    .regex(/^\d{4}$/, "Data de nascimento inválida. Use o formato DDMM."),
+});
 
-  if (onlyDigits(cpf).length !== 11) {
-    return res.status(400).json({ error: "Informe um CPF ou telefone com 11 números." });
-  }
+// Nota sobre CSRF: como a sessão fica num cookie, uma requisição forjada
+// de outro site poderia em tese chegar até aqui. `sameSite: "lax"` (ver
+// auth.ts) já impede o navegador de enviar esse cookie em requisições
+// cross-site, e a API hoje não tem nenhuma rota que muda dados do cliente
+// a partir do painel (é só leitura) — então não há um token CSRF separado
+// por enquanto. Se uma rota que grava dados for adicionada, ela precisa
+// desse reforço.
+authRouter.post("/login", loginRateLimit, validateBody(loginSchema), async (req, res) => {
+  const { cpf, birthDate } = req.body as z.infer<typeof loginSchema>;
 
   const lockedMs = msUntilUnlocked(cpf);
   if (lockedMs > 0) {
@@ -48,7 +64,8 @@ authRouter.post("/login", loginRateLimit, async (req, res) => {
   const staff = await staffDirectory.getStaffByIdentifierAndBirthDate(cpf, birthDate);
   if (staff) {
     registerSuccess(cpf);
-    const token = signSession({ role: "escritorio", staffId: staff.id });
+    const { token } = signSession({ role: "escritorio", staffId: staff.id });
+    res.cookie(SESSION_COOKIE, token, sessionCookieOptions());
     return res.json({ token, role: "escritorio", staff });
   }
 
@@ -69,6 +86,23 @@ authRouter.post("/login", loginRateLimit, async (req, res) => {
   }
 
   registerSuccess(cpf);
-  const token = signSession({ role: "cliente", clientId: client.id });
+  const { token } = signSession({ role: "cliente", clientId: client.id });
+  res.cookie(SESSION_COOKIE, token, sessionCookieOptions());
   return res.json({ token, role: "cliente", client });
+});
+
+/**
+ * O site não guarda mais o papel (cliente/equipe) em `localStorage` — o
+ * token vive só no cookie httpOnly, que o JavaScript da página não
+ * consegue ler. Por isso, ao carregar cada tela, o site chama essa rota
+ * (o cookie vai junto automaticamente) para descobrir quem está logado.
+ */
+authRouter.get("/me", requireAuth, (req: AuthedRequest, res) => {
+  return res.json({ role: req.session!.role, clientId: req.session!.clientId, staffId: req.session!.staffId });
+});
+
+authRouter.post("/logout", requireAuth, (req: AuthedRequest, res) => {
+  if (req.sessionJti) revokeSession(req.sessionJti);
+  res.clearCookie(SESSION_COOKIE, clearSessionCookieOptions());
+  return res.json({ ok: true });
 });

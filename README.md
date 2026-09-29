@@ -77,6 +77,43 @@ completa (DDMMAAAA).
 - **Mensagens de erro genéricas** ("Credenciais inválidas") em vez de
   indicar se o CPF/telefone existe ou não, para não facilitar a
   descoberta de contas válidas.
+- **Sessão em cookie `httpOnly`** (`apps/api/src/auth.ts`,
+  `sessionCookieOptions()`), não em `localStorage`: o JavaScript da página
+  não consegue ler o token, o que reduz bastante o estrago de um XSS. O
+  site usa `credentials: "include"` em toda chamada e descobre quem está
+  logado perguntando para `GET /auth/me` (o cookie vai junto sozinho) — ver
+  `getSession()` em `apps/web/src/lib/api.ts`. O app mobile, que não tem
+  esse conceito de cookie, continua mandando o token por
+  `Authorization: Bearer` (a API aceita os dois).
+- **Revogação de sessão** (`apps/api/src/sessionStore.ts`): cada login gera
+  um `jti` único, guardado em memória; `POST /auth/logout` revoga esse
+  `jti` imediatamente, então o token para de funcionar mesmo antes de
+  expirar. Isso também prepara o terreno para revogar todas as sessões de
+  alguém de uma vez (`revokeAllSessionsFor`) — útil quando uma pessoa é
+  desligada ou uma conta é comprometida.
+- **Validação de entrada com `zod`** em vez de checagem manual campo a
+  campo (`apps/api/src/middleware/validate.ts`), aplicada em `/auth/login`
+  e `/processes/:id`.
+- **Log de auditoria do painel interno** (`apps/api/src/auditLog.ts`):
+  toda requisição de um funcionário ao painel fica registrada (quem, o
+  quê, quando) e pode ser consultada em `GET /admin/audit-log` — também
+  visível dentro do próprio painel, em "Ver log de acessos".
+- **Rate limit por rota**, não só no login: `/processes` e `/admin`
+  também têm limites próprios.
+- **CSP customizado** no site (`apps/web/next.config.js`): só permite
+  carregar script/estilo/imagem do próprio domínio e do Google Fonts, e
+  chamar a API do portal — nada mais de terceiros.
+- **Aviso de privacidade** em `/privacidade`, com o que é coletado, para
+  que serve, como é protegido e os direitos da pessoa — link na tela de
+  login. É um rascunho-base em linguagem simples; precisa ser revisado por
+  um advogado antes de valer como política real.
+
+⚠️ Nota sobre CSRF: como a sessão agora fica num cookie, uma requisição
+forjada de outro site poderia em tese tentar usá-lo. `sameSite: "lax"` já
+impede o navegador de mandar esse cookie em requisições cross-site, e hoje
+a API não tem nenhuma rota que grava dados a partir do painel (é só
+leitura) — por isso não há um token CSRF separado ainda. Se uma rota que
+grava dados for adicionada no futuro, ela precisa desse reforço.
 
 Variáveis de ambiente da API (`apps/api`): `JWT_SECRET` (obrigatório em
 produção), `ALLOWED_ORIGINS` (ex.: `https://portal.fernandomiranda.adv.br`),

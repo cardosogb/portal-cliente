@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { onlyDigits } from "@portal/shared";
 import { login } from "@/lib/api";
 import { Logo } from "@/components/Logo";
@@ -90,6 +91,11 @@ export default function LoginPage() {
         <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: 16 }}>
           Demo: CPF 12345678909, nascimento 1204 → entra como cliente.
           CPF 11122233396 (ou telefone 27998210707), nascimento 2207 → entra no painel interno.
+        </p>
+        <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: 12, textAlign: "center" }}>
+          <Link href="/privacidade" style={{ color: "inherit" }}>
+            Como cuidamos dos seus dados
+          </Link>
         </p>
       </div>
     </main>

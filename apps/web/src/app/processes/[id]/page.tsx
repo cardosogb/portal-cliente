@@ -12,7 +12,7 @@ import {
   whatsappLink,
   pendingActionWhatsappMessage,
 } from "@portal/shared";
-import { getProcess, getToken } from "@/lib/api";
+import { getProcess, getSession } from "@/lib/api";
 import { Logo } from "@/components/Logo";
 
 type Tab = "timeline" | "documentos" | "financeiro";
@@ -32,13 +32,15 @@ export default function ProcessPage() {
   const [showOriginal, setShowOriginal] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    if (!getToken()) {
-      router.push("/");
-      return;
-    }
-    getProcess(params.id)
-      .then((data) => setProcess(data.process))
-      .catch((err) => setError(err instanceof Error ? err.message : "Erro ao carregar."));
+    getSession().then((session) => {
+      if (!session) {
+        router.push("/");
+        return;
+      }
+      getProcess(params.id)
+        .then((data) => setProcess(data.process))
+        .catch((err) => setError(err instanceof Error ? err.message : "Erro ao carregar."));
+    });
   }, [params.id, router]);
 
   if (error) {
