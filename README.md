@@ -38,9 +38,17 @@ O login é feito por **CPF + data de nascimento** (apenas dia e mês, formato
 CPF é digitado sem pontuação (só os 11 números — sem `.` ou `-`).
 Login de demonstração:
 - Cliente: CPF `12345678909`, nascimento `1204` → cai no portal do cliente.
-- Equipe do escritório: CPF `11122233396`, nascimento `2207` → cai direto
-  no painel interno. O perfil é identificado automaticamente pelo CPF no
-  login — não existe um botão para "trocar" de portal.
+- Equipe do escritório: CPF `11122233396` **ou telefone** `27998210707`,
+  nascimento `2207` → cai direto no painel interno. O perfil é identificado
+  automaticamente no login — não existe um botão para "trocar" de portal.
+
+**Cadastro de funcionários:** não existe tela de cadastro manual para a
+equipe do escritório. Quando a API real (ADVBOX e/ou o diretório de
+funcionários) for conectada em `apps/api/src/integrations/staffDirectory.ts`,
+qualquer pessoa que já esteja cadastrada lá consegue entrar assim que tentar
+pela primeira vez, informando CPF **ou telefone** + data de nascimento — o
+mesmo padrão do login do cliente. Isso evita depender de alguém lembrar de
+criar uma conta manualmente cada vez que uma pessoa nova é contratada.
 
 ⚠️ Nota de segurança: usar só o dia e o mês de nascimento como senha é uma
 simplificação da proposta original, pensada para reduzir fricção no MVP —

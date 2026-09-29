@@ -47,6 +47,9 @@ export default function LoginScreen() {
         placeholder="Só números, sem pontuação"
         maxLength={11}
       />
+      <Text style={styles.hintSmall}>
+        Equipe do escritório: pode entrar com CPF ou telefone.
+      </Text>
 
       <Text style={styles.label}>Data de nascimento (dia e mês)</Text>
       <TextInput

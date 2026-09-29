@@ -18,11 +18,20 @@ export interface Client {
   lastAccessAt: string | null;
 }
 
-/** Membro do escritório com acesso ao painel interno. */
+/**
+ * Membro do escritório com acesso ao painel interno.
+ *
+ * Não existe cadastro manual dentro do portal: assim que a pessoa existir
+ * na fonte de dados do escritório (ADVBOX e/ou diretório de funcionários),
+ * ela já consegue entrar, se identificando por CPF OU telefone + data de
+ * nascimento — o mesmo padrão de login usado pelo cliente.
+ */
 export interface StaffUser {
   id: string;
   name: string;
   cpf: string;
+  /** Também serve como login alternativo ao CPF. */
+  phone: string;
   /** ISO (yyyy-mm-dd). O login usa apenas o dia e o mês (DDMM) como senha. */
   birthDate: string;
   email: string;

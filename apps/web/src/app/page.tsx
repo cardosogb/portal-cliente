@@ -60,6 +60,9 @@ export default function LoginPage() {
               required
               style={{ marginTop: 4 }}
             />
+            <span style={{ display: "block", marginTop: 4, fontSize: "0.75rem", color: "var(--text-muted)" }}>
+              Se você faz parte da equipe do escritório, também pode entrar com seu telefone.
+            </span>
           </label>
           <label style={{ display: "block", marginBottom: 8 }}>
             <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Data de nascimento (dia e mês)</span>
@@ -86,7 +89,7 @@ export default function LoginPage() {
         </form>
         <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: 16 }}>
           Demo: CPF 12345678909, nascimento 1204 → entra como cliente.
-          CPF 11122233396, nascimento 2207 → entra no painel interno.
+          CPF 11122233396 (ou telefone 27998210707), nascimento 2207 → entra no painel interno.
         </p>
       </div>
     </main>

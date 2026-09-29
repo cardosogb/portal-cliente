@@ -23,14 +23,15 @@ export const mockClients: Client[] = [
 
 /**
  * Contas do escritório com acesso ao painel interno. O login identifica
- * automaticamente esse perfil pelo CPF — não existe mais um botão
- * manual para "entrar como equipe" dentro do portal do cliente.
+ * automaticamente esse perfil pelo CPF ou telefone — não existe cadastro
+ * manual dentro do portal nem um botão para "entrar como equipe".
  */
 export const mockStaffUsers: StaffUser[] = [
   {
     id: "staff_leandro",
     name: "Leandro Miranda",
     cpf: "111.222.333-96",
+    phone: "+55 27 99821-0707",
     birthDate: "1980-07-22",
     email: "leandro@fernandomiranda.adv.br",
   },
