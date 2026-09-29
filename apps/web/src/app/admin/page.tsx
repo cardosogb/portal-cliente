@@ -59,7 +59,7 @@ export default function AdminPage() {
   return (
     <div>
       <nav className="top-nav">
-        <Logo height={36} variant="icon" />
+        <Logo height={36} variant="icon" href="/admin" />
         <button className="btn-secondary" onClick={logout} style={{ color: "var(--white)", borderColor: "#3a4a6b" }}>
           Sair
         </button>

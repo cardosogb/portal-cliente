@@ -63,7 +63,7 @@ export default function ProcessPage() {
   return (
     <div>
       <nav className="top-nav">
-        <Logo height={36} variant="icon" />
+        <Logo height={36} variant="icon" href="/dashboard" />
         <Link href="/dashboard" style={{ color: "var(--white)", textDecoration: "none", fontSize: "0.85rem" }}>
           ← Voltar
         </Link>
