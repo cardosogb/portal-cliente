@@ -52,9 +52,35 @@ criar uma conta manualmente cada vez que uma pessoa nova é contratada.
 
 ⚠️ Nota de segurança: usar só o dia e o mês de nascimento como senha é uma
 simplificação da proposta original, pensada para reduzir fricção no MVP —
-o espaço de senhas é pequeno (366 combinações) e previsível. Antes de ir
-para produção, vale reforçar com 2FA (ex.: código por SMS/WhatsApp) ou
-usar a senha completa (DDMMAAAA) e/ou limitar tentativas de login.
+o espaço de senhas é pequeno (366 combinações) e previsível. Por isso a API
+já trava a conta por 15 minutos depois de 5 tentativas erradas com o mesmo
+CPF/telefone (`apps/api/src/loginLockout.ts`), além de um limite geral por
+IP (`express-rate-limit`). Ainda assim, antes de ir para produção vale
+reforçar com 2FA (ex.: código por SMS/WhatsApp) e/ou trocar para a senha
+completa (DDMMAAAA).
+
+### Protocolos de segurança já na API
+
+- **Cabeçalhos de segurança** via `helmet()` (HSTS, `X-Frame-Options`,
+  `X-Content-Type-Options`, etc.) em `apps/api/src/server.ts`.
+- **CORS restrito**: em produção, só os domínios listados em
+  `ALLOWED_ORIGINS` (separados por vírgula) podem chamar a API; sem essa
+  variável configurada, a API bloqueia tudo em vez de liberar geral. Em
+  desenvolvimento local continua liberado, por conveniência.
+- **Segredo do JWT obrigatório em produção**: a API se recusa a subir com
+  `NODE_ENV=production` se `JWT_SECRET` não estiver configurado com um
+  valor próprio — o padrão de desenvolvimento nunca vai para produção por
+  descuido (`assertProductionSecrets()` em `apps/api/src/auth.ts`).
+- **Trava de força bruta por conta** (não só por IP) no login, descrita
+  acima — importante justamente pelo espaço pequeno de senhas.
+- **Tokens JWT com expiração** (7 dias) em vez de sessão permanente.
+- **Mensagens de erro genéricas** ("Credenciais inválidas") em vez de
+  indicar se o CPF/telefone existe ou não, para não facilitar a
+  descoberta de contas válidas.
+
+Variáveis de ambiente da API (`apps/api`): `JWT_SECRET` (obrigatório em
+produção), `ALLOWED_ORIGINS` (ex.: `https://portal.fernandomiranda.adv.br`),
+`NODE_ENV=production`, `PORT`.
 
 O site usa `NEXT_PUBLIC_API_URL` (padrão `http://localhost:4000`) e o app
 mobile usa `extra.apiUrl` em `apps/mobile/app.json` para apontar para a API.
