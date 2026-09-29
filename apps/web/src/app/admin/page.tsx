@@ -19,6 +19,13 @@ function statusPillClass(status: string): string {
   return "pill pill-action";
 }
 
+function daysSinceLabel(days: number | null): string {
+  if (days === null) return "sem movimentação registrada";
+  if (days === 0) return "hoje";
+  if (days === 1) return "ontem";
+  return `há ${days} dias`;
+}
+
 export default function AdminPage() {
   const router = useRouter();
   const [data, setData] = useState<AdminOverview | null>(null);
@@ -65,11 +72,23 @@ export default function AdminPage() {
         {!data && <p>Carregando...</p>}
         {data && (
           <>
-            <div className="card" style={{ marginBottom: 20 }}>
+            <div
+              className="card"
+              style={{
+                marginBottom: 20,
+                borderColor: data.staleProcessesCount > 0 ? "#e8c78a" : undefined,
+                background: data.staleProcessesCount > 0 ? "#fbf3e4" : undefined,
+              }}
+            >
               <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--text-muted)" }}>
-                Processos sem atualização há mais de 15 dias
+                Processos sem movimentação há mais de {data.staleDaysThreshold} dias
               </p>
-              <p style={{ margin: "4px 0 0", fontSize: "2rem", fontWeight: 700 }}>{data.staleProcessesCount}</p>
+              <p style={{ margin: "4px 0 0", fontSize: "2rem", fontWeight: 700, color: data.staleProcessesCount > 0 ? "var(--wine)" : "var(--text)" }}>
+                {data.staleProcessesCount}
+              </p>
+              <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--text-muted)" }}>
+                Calculado a partir da última movimentação registrada no ADVBOX — atualiza sozinho, sem precisar editar nada aqui.
+              </p>
             </div>
 
             <h2 className="serif" style={{ marginBottom: 10 }}>Clientes e processos</h2>
@@ -118,6 +137,7 @@ export default function AdminPage() {
                     <th>Cliente</th>
                     <th>Processo</th>
                     <th>Advogado</th>
+                    <th>Última movimentação</th>
                     <th>Último acesso</th>
                     <th>Status</th>
                   </tr>
@@ -134,6 +154,15 @@ export default function AdminPage() {
                         </td>
                         <td style={{ fontVariantNumeric: "tabular-nums" }}>{r.processNumber}</td>
                         <td>{r.lawyerName}</td>
+                        <td>
+                          {r.isStale ? (
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: "var(--wine)", fontWeight: 600 }}>
+                              <span aria-hidden="true">⚠️</span> {daysSinceLabel(r.daysSinceLastMovement)}
+                            </span>
+                          ) : (
+                            <span style={{ color: "var(--text-muted)" }}>{daysSinceLabel(r.daysSinceLastMovement)}</span>
+                          )}
+                        </td>
                         <td>{r.lastAccessAt ? formatDatePtBR(r.lastAccessAt) : "—"}</td>
                         <td>
                           <span className={statusPillClass(r.status)}>{statusLabel(r.status)}</span>
@@ -142,7 +171,7 @@ export default function AdminPage() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={5}>
+                      <td colSpan={6}>
                         <div className="admin-empty-state">
                           <div className="icon">🔍</div>
                           Nenhum cliente ou processo encontrado para &ldquo;{search}&rdquo;.

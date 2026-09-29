@@ -15,6 +15,16 @@
  * escritório (ex.: andamentos de RPV) antes de chegarem ao cliente, e
  * traduz o restante para linguagem simples. Nunca monte a timeline do
  * cliente direto a partir da resposta crua da API.
+ *
+ * IMPORTANTE também: preencha `LegalProcess.lastMovementAt` com a data da
+ * movimentação mais recente RETORNADA PELA API, antes de qualquer filtro
+ * — não com `timeline[timeline.length - 1].date`. O painel interno usa
+ * `lastMovementAt` (via `processHealth.ts`) para avisar "processo sem
+ * movimentação há N dias", e se essa data viesse da timeline já filtrada
+ * pro cliente, um processo com só uma RPV recente (filtrada) pareceria
+ * "parado" pra equipe sem estar. `lastMovementAt` nunca é armazenado à
+ * parte — é sempre a data crua que a API do ADVBOX devolve, então o
+ * aviso nunca pode divergir do que o ADVBOX mostra.
  */
 import {
   mockClients,

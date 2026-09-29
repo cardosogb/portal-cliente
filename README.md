@@ -85,6 +85,16 @@ real:
 - `packages/shared/src/contact.ts` — número de WhatsApp do escritório usado
   no botão "Enviar pelo WhatsApp do escritório" (mostrado quando há uma
   pendência do cliente).
+- `apps/api/src/integrations/processHealth.ts` — calcula "dias sem
+  movimentação" e se um processo está "parado" (`isStale`), sempre a
+  partir de `LegalProcess.lastMovementAt`. **Esse campo precisa vir
+  direto da movimentação mais recente que a API do ADVBOX devolver, sem
+  passar pelo filtro de `movementsToClientTimeline`** — se viesse da
+  timeline já filtrada pro cliente, um processo com só uma RPV recente
+  (escondida do cliente) apareceria como "parado" pra equipe sem estar.
+  O número nunca é salvo em nenhum lugar (nem banco, nem cache) — é
+  recalculado a cada requisição em cima do dado do ADVBOX, então nunca
+  pode divergir do que o próprio ADVBOX mostra.
 
 ## Funcionalidades implementadas (MVP)
 
@@ -102,8 +112,10 @@ prototipadas end-to-end (com dados mockados):
       escritório (não há mais um canal de mensagens dentro do portal)
 - [x] Documentos do processo para download
 - [x] Painel financeiro (parcelas pagas/pendentes)
-- [x] Painel interno do escritório (clientes/processos, processos parados,
-      satisfação por advogado)
+- [x] Painel interno do escritório: busca de clientes/processos, aviso de
+      "dias sem movimentação" por processo (calculado a partir de
+      `LegalProcess.lastMovementAt`, nunca armazenado à parte — ver nota
+      de arquitetura abaixo), satisfação por advogado
 
 Ainda não implementado (depende de integrações externas reais):
 

@@ -54,6 +54,9 @@ export const mockProcesses: LegalProcess[] = [
     },
     forecast:
       "Processos como este costumam levar entre 10 e 16 meses até a sentença. Seu processo está no mês 2.",
+    // Nenhuma movimentação desde 05/09 — mais de 15 dias, então aparece
+    // como "parado" no painel interno (demonstra o aviso).
+    lastMovementAt: "2026-09-05",
     timeline: [
       {
         id: "tl_1",
@@ -136,6 +139,7 @@ export const mockProcesses: LegalProcess[] = [
     },
     forecast:
       "Este processo foi concluído em 6 meses, dentro da média para casos semelhantes.",
+    lastMovementAt: "2026-09-01",
     timeline: [
       {
         id: "tl_4",

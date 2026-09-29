@@ -84,6 +84,15 @@ export interface LegalProcess {
   lawyerName: string;
   nextAction: NextAction;
   forecast: string;
+  /**
+   * ISO da movimentação mais recente do processo, tirado direto do
+   * ADVBOX — antes de qualquer filtro do que aparece pro cliente (ex.:
+   * andamentos de RPV, escondidos em `timeline`). É o que o painel
+   * interno usa para calcular "dias sem movimentação"; usar `timeline`
+   * pra isso geraria um número errado, já que `timeline` pode não ter
+   * o andamento mais recente do processo.
+   */
+  lastMovementAt: string;
   timeline: TimelineEvent[];
   documents: ProcessDocument[];
   financial: FinancialInstallment[];

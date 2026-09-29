@@ -72,12 +72,15 @@ export function getProcess(id: string) {
 
 export interface AdminOverview {
   staleProcessesCount: number;
+  staleDaysThreshold: number;
   rows: Array<{
     clientName: string;
     processNumber: string;
     lawyerName: string;
     lastAccessAt: string | null;
     status: string;
+    daysSinceLastMovement: number | null;
+    isStale: boolean;
   }>;
   satisfaction: Array<{ lawyerName: string; averageScore: number; responseCount: number }>;
 }
