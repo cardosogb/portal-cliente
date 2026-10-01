@@ -2,7 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getAdminOverview, getAuditLog, getSession, logout as apiLogout, type AdminOverview, type AuditEntry } from "@/lib/api";
+import Link from "next/link";
+import {
+  getAdminOverview,
+  getAuditLog,
+  getSession,
+  logout as apiLogout,
+  type AdminOverview,
+  type AuditEntry,
+  type Session,
+} from "@/lib/api";
 import { formatDatePtBR, statusLabel } from "@portal/shared";
 import { Logo } from "@/components/Logo";
 
@@ -32,6 +41,7 @@ export default function AdminPage() {
   const [search, setSearch] = useState("");
   const [auditLog, setAuditLog] = useState<AuditEntry[] | null>(null);
   const [showAuditLog, setShowAuditLog] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
     getSession().then((session) => {
@@ -43,6 +53,7 @@ export default function AdminPage() {
         router.push("/dashboard");
         return;
       }
+      setSession(session);
       getAdminOverview().then(setData);
     });
   }, [router]);
@@ -73,10 +84,19 @@ export default function AdminPage() {
         </button>
       </nav>
       <main className="container">
-        <h1 className="serif" style={{ marginBottom: 4 }}>Painel interno</h1>
-        <p style={{ margin: "0 0 20px", color: "var(--text-muted)", fontSize: "0.9rem" }}>
-          Visão da equipe do escritório — não é o que o cliente vê.
-        </p>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", flexWrap: "wrap", gap: 8 }}>
+          <div>
+            <h1 className="serif" style={{ marginBottom: 4 }}>Painel interno</h1>
+            <p style={{ margin: "0 0 20px", color: "var(--text-muted)", fontSize: "0.9rem" }}>
+              Visão da equipe do escritório — não é o que o cliente vê.
+            </p>
+          </div>
+          {session?.staffAccessLevel === "executivo" && (
+            <Link href="/admin/executivo" className="btn-primary" style={{ textDecoration: "none" }}>
+              Dashboard executivo
+            </Link>
+          )}
+        </div>
         {!data && <p>Carregando...</p>}
         {data && (
           <>

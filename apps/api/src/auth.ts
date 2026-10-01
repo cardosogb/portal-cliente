@@ -96,3 +96,19 @@ export function requireRole(role: AuthSession["role"]) {
     next();
   };
 }
+
+/**
+ * Trava adicional dentro do painel interno: além de ser da equipe
+ * (`requireRole("escritorio")`), a pessoa precisa ter `accessLevel` igual
+ * ao exigido. Usado para separar o dashboard de desenvolvimento do
+ * escritório (hoje só TI, Diretor(a) e CEO) do painel comum que qualquer
+ * advogado já tem acesso.
+ */
+export function requireAccessLevel(level: NonNullable<AuthSession["staffAccessLevel"]>) {
+  return (req: AuthedRequest, res: Response, next: NextFunction) => {
+    if (req.session?.staffAccessLevel !== level) {
+      return res.status(403).json({ error: "Acesso restrito à diretoria e TI." });
+    }
+    next();
+  };
+}

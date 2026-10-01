@@ -25,15 +25,51 @@ export const mockClients: Client[] = [
  * Contas do escritório com acesso ao painel interno. O login identifica
  * automaticamente esse perfil pelo CPF ou telefone — não existe cadastro
  * manual dentro do portal nem um botão para "entrar como equipe".
+ *
+ * `accessLevel: "executivo"` é quem vê o dashboard de desenvolvimento do
+ * escritório (equipe + processos), em /admin/executivo — hoje só
+ * TI, Diretor(a) e CEO.
  */
 export const mockStaffUsers: StaffUser[] = [
   {
     id: "staff_leandro",
     name: "Leandro Miranda",
+    title: "Advogado",
     cpf: "111.222.333-96",
     phone: "+55 27 99821-0707",
     birthDate: "1980-07-22",
     email: "leandro@fernandomiranda.adv.br",
+    accessLevel: "padrao",
+  },
+  {
+    id: "staff_ti",
+    name: "Paulo Nogueira",
+    title: "TI",
+    cpf: "222.333.444-05",
+    phone: "+55 27 98811-2233",
+    birthDate: "1990-02-14",
+    email: "ti@fernandomiranda.adv.br",
+    accessLevel: "executivo",
+  },
+  {
+    id: "staff_diretor",
+    name: "Camila Fontes",
+    title: "Diretora",
+    cpf: "333.444.555-16",
+    phone: "+55 27 98822-3344",
+    birthDate: "1978-05-09",
+    email: "diretoria@fernandomiranda.adv.br",
+    accessLevel: "executivo",
+  },
+  {
+    id: "staff_ceo",
+    name: "Fernando Miranda",
+    title: "CEO",
+    cpf: "444.555.666-27",
+    phone: "+55 27 98833-4455",
+    birthDate: "1972-11-03",
+    email: "fernando@fernandomiranda.adv.br",
+    accessLevel: "executivo",
   },
 ];
 

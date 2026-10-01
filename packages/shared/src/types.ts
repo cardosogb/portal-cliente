@@ -29,12 +29,21 @@ export interface Client {
 export interface StaffUser {
   id: string;
   name: string;
+  /** Cargo, só para exibição (ex.: "Advogado", "TI", "Diretor", "CEO"). */
+  title: string;
   cpf: string;
   /** Também serve como login alternativo ao CPF. */
   phone: string;
   /** ISO (yyyy-mm-dd). O login usa apenas o dia e o mês (DDMM) como senha. */
   birthDate: string;
   email: string;
+  /**
+   * Nível de acesso dentro do painel interno. "executivo" é quem enxerga o
+   * dashboard de desenvolvimento do escritório (equipe + processos) — hoje
+   * só TI, Diretor(a) e CEO; advogados têm o painel interno normal
+   * (busca de cliente/processo), sem essa aba.
+   */
+  accessLevel: "padrao" | "executivo";
 }
 
 export interface TimelineEvent {
@@ -125,4 +134,6 @@ export interface AuthSession {
   role: "cliente" | "escritorio";
   clientId?: string;
   staffId?: string;
+  /** Só presente quando `role === "escritorio"`. Ver `StaffUser.accessLevel`. */
+  staffAccessLevel?: "padrao" | "executivo";
 }

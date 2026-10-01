@@ -64,7 +64,11 @@ authRouter.post("/login", loginRateLimit, validateBody(loginSchema), async (req,
   const staff = await staffDirectory.getStaffByIdentifierAndBirthDate(cpf, birthDate);
   if (staff) {
     registerSuccess(cpf);
-    const { token } = signSession({ role: "escritorio", staffId: staff.id });
+    const { token } = signSession({
+      role: "escritorio",
+      staffId: staff.id,
+      staffAccessLevel: staff.accessLevel,
+    });
     res.cookie(SESSION_COOKIE, token, sessionCookieOptions());
     return res.json({ token, role: "escritorio", staff });
   }
@@ -98,7 +102,12 @@ authRouter.post("/login", loginRateLimit, validateBody(loginSchema), async (req,
  * (o cookie vai junto automaticamente) para descobrir quem está logado.
  */
 authRouter.get("/me", requireAuth, (req: AuthedRequest, res) => {
-  return res.json({ role: req.session!.role, clientId: req.session!.clientId, staffId: req.session!.staffId });
+  return res.json({
+    role: req.session!.role,
+    clientId: req.session!.clientId,
+    staffId: req.session!.staffId,
+    staffAccessLevel: req.session!.staffAccessLevel,
+  });
 });
 
 authRouter.post("/logout", requireAuth, (req: AuthedRequest, res) => {

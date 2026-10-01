@@ -3,7 +3,7 @@ import rateLimit from "express-rate-limit";
 import { advboxClient } from "../integrations/advboxAdapter";
 import { daysSinceLastMovement, isStale, STALE_DAYS_THRESHOLD } from "../integrations/processHealth";
 import { mockClients, mockSatisfaction, mockStaffUsers } from "@portal/shared";
-import { requireAuth, requireRole, type AuthedRequest } from "../auth";
+import { requireAccessLevel, requireAuth, requireRole, type AuthedRequest } from "../auth";
 import { getRecentAccess, recordAccess } from "../auditLog";
 
 export const adminRouter = Router();
@@ -50,5 +50,59 @@ adminRouter.get("/overview", async (_req, res) => {
     staleDaysThreshold: STALE_DAYS_THRESHOLD,
     rows,
     satisfaction: mockSatisfaction,
+  });
+});
+
+/**
+ * Dashboard de desenvolvimento do escritório: visão agregada de equipe e
+ * processos, pra quem decide (TI, Diretoria, CEO) — não é algo que um
+ * advogado individual precisa ver sobre o escritório inteiro. Por isso a
+ * trava extra de `requireAccessLevel("executivo")`, além de já exigir ser
+ * da equipe.
+ */
+adminRouter.get("/executive-overview", requireAccessLevel("executivo"), async (_req, res) => {
+  const processes = await advboxClient.listAllProcesses();
+
+  const byStatus: Record<string, number> = {};
+  const byArea: Record<string, number> = {};
+  for (const p of processes) {
+    byStatus[p.status] = (byStatus[p.status] ?? 0) + 1;
+    byArea[p.area] = (byArea[p.area] ?? 0) + 1;
+  }
+
+  const staleCount = processes.filter(isStale).length;
+
+  // Performance por advogado: cruza a pesquisa de satisfação com a
+  // carteira de processos de cada um.
+  const lawyerNames = new Set([...mockSatisfaction.map((s) => s.lawyerName), ...processes.map((p) => p.lawyerName)]);
+  const staffPerformance = [...lawyerNames].map((lawyerName) => {
+    const owned = processes.filter((p) => p.lawyerName === lawyerName);
+    const satisfaction = mockSatisfaction.find((s) => s.lawyerName === lawyerName);
+    return {
+      lawyerName,
+      activeProcesses: owned.filter((p) => p.status === "em_andamento").length,
+      concludedProcesses: owned.filter((p) => p.status === "concluido").length,
+      staleProcesses: owned.filter(isStale).length,
+      averageScore: satisfaction?.averageScore ?? null,
+      responseCount: satisfaction?.responseCount ?? 0,
+    };
+  });
+
+  const team = mockStaffUsers.map((s) => ({
+    name: s.name,
+    title: s.title,
+    accessLevel: s.accessLevel,
+  }));
+
+  return res.json({
+    processTotals: {
+      total: processes.length,
+      byStatus,
+      byArea,
+      staleCount,
+      staleDaysThreshold: STALE_DAYS_THRESHOLD,
+    },
+    staffPerformance,
+    team,
   });
 });

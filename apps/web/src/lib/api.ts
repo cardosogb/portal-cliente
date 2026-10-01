@@ -49,6 +49,7 @@ export interface Session {
   role: "cliente" | "escritorio";
   clientId?: string;
   staffId?: string;
+  staffAccessLevel?: "padrao" | "executivo";
 }
 
 /**
@@ -102,4 +103,27 @@ export interface AuditEntry {
 
 export function getAuditLog() {
   return request<{ entries: AuditEntry[] }>("/admin/audit-log");
+}
+
+export interface ExecutiveOverview {
+  processTotals: {
+    total: number;
+    byStatus: Record<string, number>;
+    byArea: Record<string, number>;
+    staleCount: number;
+    staleDaysThreshold: number;
+  };
+  staffPerformance: Array<{
+    lawyerName: string;
+    activeProcesses: number;
+    concludedProcesses: number;
+    staleProcesses: number;
+    averageScore: number | null;
+    responseCount: number;
+  }>;
+  team: Array<{ name: string; title: string; accessLevel: "padrao" | "executivo" }>;
+}
+
+export function getExecutiveOverview() {
+  return request<ExecutiveOverview>("/admin/executive-overview");
 }

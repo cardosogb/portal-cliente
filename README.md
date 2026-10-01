@@ -38,9 +38,14 @@ O login é feito por **CPF + data de nascimento** (apenas dia e mês, formato
 CPF é digitado sem pontuação (só os 11 números — sem `.` ou `-`).
 Login de demonstração:
 - Cliente: CPF `12345678909`, nascimento `1204` → cai no portal do cliente.
-- Equipe do escritório: CPF `11122233396` **ou telefone** `27998210707`,
-  nascimento `2207` → cai direto no painel interno. O perfil é identificado
-  automaticamente no login — não existe um botão para "trocar" de portal.
+- Equipe do escritório (acesso padrão): CPF `11122233396` **ou telefone**
+  `27998210707`, nascimento `2207` → cai direto no painel interno. O perfil
+  é identificado automaticamente no login — não existe um botão para
+  "trocar" de portal.
+- Equipe do escritório (acesso executivo — TI/Diretoria/CEO): CPF
+  `22233344405` (TI), `33344455516` (Diretoria) ou `44455566627` (CEO),
+  nascimento `1402`, `0905` ou `0311` respectivamente → além do painel
+  comum, vêem o botão "Dashboard executivo".
 
 **Cadastro de funcionários:** não existe tela de cadastro manual para a
 equipe do escritório. Quando a API real (ADVBOX e/ou o diretório de
@@ -187,6 +192,14 @@ prototipadas end-to-end (com dados mockados):
       "dias sem movimentação" por processo (calculado a partir de
       `LegalProcess.lastMovementAt`, nunca armazenado à parte — ver nota
       de arquitetura abaixo), satisfação por advogado
+- [x] Dashboard executivo (`/admin/executivo`), restrito a quem tem
+      `StaffUser.accessLevel === "executivo"` (hoje TI, Diretoria e CEO):
+      visão agregada de processos (por status/área, total parado) e
+      desenvolvimento por advogado (ativos/concluídos/parados/satisfação).
+      Trava dupla no servidor (`requireRole("escritorio")` +
+      `requireAccessLevel("executivo")`) — o link só aparece pra quem tem
+      acesso, mas a rota em si também recusa quem não tem, mesmo entrando
+      pela URL direto
 
 Ainda não implementado (depende de integrações externas reais):
 
