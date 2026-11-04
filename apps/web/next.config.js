@@ -32,7 +32,24 @@ const nextConfig = {
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          // 2 anos + subdomínios + preload — depois do domínio no ar com
+          // HTTPS funcionando, vale submeter em hstspreload.org.
+          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
         ],
+      },
+      {
+        // Área de cliente/equipe: dado de gente de verdade, nunca deve
+        // aparecer no Google nem em nenhum outro buscador.
+        source: "/dashboard/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+      {
+        source: "/admin/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+      {
+        source: "/processes/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       },
     ];
   },

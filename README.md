@@ -113,6 +113,27 @@ completa (DDMMAAAA).
   login. É um rascunho-base em linguagem simples; precisa ser revisado por
   um advogado antes de valer como política real.
 
+### Protocolos para "site seguro" (HTTPS, Google, scanners de segurança)
+
+- **HTTPS forçado em produção**: tanto a API quanto o site recusam HTTP —
+  a API redireciona (301) pra HTTPS já na primeira visita
+  (`apps/api/src/server.ts`), reconhecendo o cabeçalho `X-Forwarded-Proto`
+  de um proxy reverso na frente dela (Render, Nginx etc.); o site roda
+  atrás do mesmo tipo de proxy e herda esse comportamento dele.
+- **HSTS forte** (`max-age=63072000; includeSubDomains; preload`) no site
+  e na API. Depois do domínio final estar no ar com HTTPS funcionando,
+  vale submeter o domínio em [hstspreload.org](https://hstspreload.org) —
+  aí até a primeira visita de cada pessoa já vem forçada em HTTPS.
+- **`X-Powered-By` removido** (via `helmet()`), pra não anunciar pra quem
+  quer que esteja escaneando que a API roda em Express.
+- **`security.txt`** (RFC 9116) em `/.well-known/security.txt`, tanto no
+  site quanto na API — onde um pesquisador de segurança reporta uma falha
+  encontrada, sem precisar adivinhar um contato.
+- **`robots.txt` + `X-Robots-Tag: noindex`** nas áreas de cliente/equipe
+  (`/dashboard`, `/admin`, `/processes`) — são páginas com dado real de
+  gente de verdade, não deveriam aparecer no Google nem em nenhum buscador.
+  A API inteira também manda `noindex` (ela não serve página, só dado).
+
 ⚠️ Nota sobre CSRF: como a sessão agora fica num cookie, uma requisição
 forjada de outro site poderia em tese tentar usá-lo. `sameSite: "lax"` já
 impede o navegador de mandar esse cookie em requisições cross-site, e hoje
