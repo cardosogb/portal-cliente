@@ -5,7 +5,13 @@ export default function RootLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: colors.ink },
+        // O tipo de headerStyle do expo-router só declara backgroundColor,
+        // mas o componente nativo aceita o resto normalmente — daí o `as any`.
+        headerStyle: {
+          backgroundColor: colors.ink,
+          borderBottomWidth: 2,
+          borderBottomColor: colors.brass,
+        } as any,
         headerTintColor: colors.white,
         headerTitleStyle: { fontWeight: "600" },
         contentStyle: { backgroundColor: colors.fog },

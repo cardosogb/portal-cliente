@@ -6,6 +6,7 @@ import { areaLabel, statusLabel } from "@portal/shared";
 import { getToken, listProcesses } from "@/lib/api";
 import { colors } from "@/theme/colors";
 import { Logo } from "@/components/Logo";
+import { FadeInView } from "@/components/FadeInView";
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -39,26 +40,31 @@ export default function DashboardScreen() {
         data={processes}
         keyExtractor={(p) => p.id}
         contentContainerStyle={{ gap: 12 }}
-        renderItem={({ item }) => (
-          <Pressable style={styles.card} onPress={() => router.push(`/process/${item.id}`)}>
-            <Text style={styles.meta}>
-              {areaLabel(item.area)} · {item.court}
-            </Text>
-            <Text style={styles.title}>Processo nº {item.number}</Text>
-            <Text style={styles.subtitle}>
-              {statusLabel(item.status)} — {item.currentPhase}
-            </Text>
-            <View
-              style={[
-                styles.pill,
-                { backgroundColor: item.nextAction.type === "acao" ? "#f6e6c8" : "#dcecdf" },
-              ]}
+        renderItem={({ item, index }) => (
+          <FadeInView delay={index * 70}>
+            <Pressable
+              style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+              onPress={() => router.push(`/process/${item.id}`)}
             >
-              <Text style={{ color: item.nextAction.type === "acao" ? "#7a5a13" : colors.forest, fontSize: 12, fontWeight: "700" }}>
-                {item.nextAction.type === "acao" ? "Ação necessária" : "Em dia"}
+              <Text style={styles.meta}>
+                {areaLabel(item.area)} · {item.court}
               </Text>
-            </View>
-          </Pressable>
+              <Text style={styles.title}>Processo nº {item.number}</Text>
+              <Text style={styles.subtitle}>
+                {statusLabel(item.status)} — {item.currentPhase}
+              </Text>
+              <View
+                style={[
+                  styles.pill,
+                  { backgroundColor: item.nextAction.type === "acao" ? "#f6e6c8" : "#dcecdf" },
+                ]}
+              >
+                <Text style={{ color: item.nextAction.type === "acao" ? "#7a5a13" : colors.forest, fontSize: 12, fontWeight: "700" }}>
+                  {item.nextAction.type === "acao" ? "Ação necessária" : "Em dia"}
+                </Text>
+              </View>
+            </Pressable>
+          </FadeInView>
         )}
       />
     </View>
@@ -69,7 +75,20 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.fog, padding: 16 },
   sectionTitle: { fontSize: 20, fontWeight: "700", color: colors.text, marginBottom: 12 },
   error: { color: colors.wine, marginBottom: 12 },
-  card: { backgroundColor: colors.white, borderRadius: 12, padding: 16, borderWidth: 1, borderColor: colors.border, gap: 4 },
+  card: {
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    gap: 4,
+    shadowColor: colors.ink,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  cardPressed: { transform: [{ scale: 0.98 }], borderColor: colors.brass },
   meta: { color: colors.textMuted, fontSize: 12 },
   title: { fontSize: 17, fontWeight: "600", color: colors.text },
   subtitle: { color: colors.text },

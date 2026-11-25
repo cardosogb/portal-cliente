@@ -12,6 +12,7 @@ import {
 } from "@portal/shared";
 import { getProcess } from "@/lib/api";
 import { colors } from "@/theme/colors";
+import { FadeInView } from "@/components/FadeInView";
 
 type Tab = "timeline" | "documentos" | "financeiro";
 const TABS: Array<[Tab, string]> = [
@@ -50,14 +51,14 @@ export default function ProcessScreen() {
         Fase atual: {process.currentPhase} — {phaseExplanation(process.currentPhase)}
       </Text>
 
-      <View style={styles.actionCard}>
+      <FadeInView style={styles.actionCard}>
         <Text style={{ color: needsAction ? colors.wine : colors.forest, fontWeight: "600" }}>
           {process.nextAction.text}
         </Text>
         <Text style={styles.mutedSmall}>{process.forecast}</Text>
         {needsAction && (
           <Pressable
-            style={styles.whatsappButton}
+            style={({ pressed }) => [styles.whatsappButton, pressed && styles.whatsappButtonPressed]}
             onPress={() =>
               Linking.openURL(whatsappLink(pendingActionWhatsappMessage(process.number, process.nextAction.text)))
             }
@@ -65,13 +66,13 @@ export default function ProcessScreen() {
             <Text style={styles.whatsappButtonText}>Enviar pelo WhatsApp do escritório</Text>
           </Pressable>
         )}
-      </View>
+      </FadeInView>
 
       <View style={styles.tabRow}>
         {TABS.map(([key, label]) => (
           <Pressable
             key={key}
-            style={[styles.tabButton, tab === key && styles.tabButtonActive]}
+            style={({ pressed }) => [styles.tabButton, tab === key && styles.tabButtonActive, pressed && { opacity: 0.8 }]}
             onPress={() => setTab(key)}
           >
             <Text style={{ color: tab === key ? colors.white : colors.text }}>{label}</Text>
@@ -79,44 +80,46 @@ export default function ProcessScreen() {
         ))}
       </View>
 
-      {tab === "timeline" &&
-        process.timeline.map((event) => (
-          <View key={event.id} style={styles.card}>
-            <Text style={styles.mutedSmall}>{formatDatePtBR(event.date)}</Text>
-            <Text style={styles.tlPlain}>{event.plainText}</Text>
-            <Text style={styles.tlExplanation}>{event.explanation}</Text>
-            <Pressable onPress={() => setExpanded((s) => ({ ...s, [event.id]: !s[event.id] }))}>
-              <Text style={styles.link}>
-                {expanded[event.id] ? "Ocultar texto original" : "Ver texto original do processo"}
+      <FadeInView key={tab}>
+        {tab === "timeline" &&
+          process.timeline.map((event, i) => (
+            <FadeInView key={event.id} delay={i * 50} style={styles.card}>
+              <Text style={styles.mutedSmall}>{formatDatePtBR(event.date)}</Text>
+              <Text style={styles.tlPlain}>{event.plainText}</Text>
+              <Text style={styles.tlExplanation}>{event.explanation}</Text>
+              <Pressable onPress={() => setExpanded((s) => ({ ...s, [event.id]: !s[event.id] }))}>
+                <Text style={styles.link}>
+                  {expanded[event.id] ? "Ocultar texto original" : "Ver texto original do processo"}
+                </Text>
+              </Pressable>
+              {expanded[event.id] && <Text style={styles.original}>{event.originalText}</Text>}
+            </FadeInView>
+          ))}
+
+        {tab === "documentos" &&
+          process.documents.map((doc, i) => (
+            <FadeInView key={doc.id} delay={i * 50} style={[styles.card, { flexDirection: "row", justifyContent: "space-between" }]}>
+              <Text>{doc.title}</Text>
+              <Text style={styles.mutedSmall}>
+                {formatDatePtBR(doc.uploadedAt)} · {doc.sizeKb} KB
               </Text>
-            </Pressable>
-            {expanded[event.id] && <Text style={styles.original}>{event.originalText}</Text>}
-          </View>
-        ))}
+            </FadeInView>
+          ))}
 
-      {tab === "documentos" &&
-        process.documents.map((doc) => (
-          <View key={doc.id} style={[styles.card, { flexDirection: "row", justifyContent: "space-between" }]}>
-            <Text>{doc.title}</Text>
-            <Text style={styles.mutedSmall}>
-              {formatDatePtBR(doc.uploadedAt)} · {doc.sizeKb} KB
-            </Text>
-          </View>
-        ))}
-
-      {tab === "financeiro" &&
-        process.financial.map((f) => (
-          <View key={f.id} style={[styles.card, { flexDirection: "row", justifyContent: "space-between" }]}>
-            <View>
-              <Text>{f.description}</Text>
-              <Text style={styles.mutedSmall}>Vencimento: {formatDatePtBR(f.dueDate)}</Text>
-            </View>
-            <View style={{ alignItems: "flex-end" }}>
-              <Text style={{ fontWeight: "600" }}>{formatBRL(f.amountCents)}</Text>
-              <Text style={styles.mutedSmall}>{f.status}</Text>
-            </View>
-          </View>
-        ))}
+        {tab === "financeiro" &&
+          process.financial.map((f, i) => (
+            <FadeInView key={f.id} delay={i * 50} style={[styles.card, { flexDirection: "row", justifyContent: "space-between" }]}>
+              <View>
+                <Text>{f.description}</Text>
+                <Text style={styles.mutedSmall}>Vencimento: {formatDatePtBR(f.dueDate)}</Text>
+              </View>
+              <View style={{ alignItems: "flex-end" }}>
+                <Text style={{ fontWeight: "600" }}>{formatBRL(f.amountCents)}</Text>
+                <Text style={styles.mutedSmall}>{f.status}</Text>
+              </View>
+            </FadeInView>
+          ))}
+      </FadeInView>
     </ScrollView>
   );
 }
@@ -126,13 +129,50 @@ const styles = StyleSheet.create({
   meta: { color: colors.textMuted, fontSize: 12 },
   title: { fontSize: 20, fontWeight: "700", marginVertical: 6 },
   mutedSmall: { color: colors.textMuted, fontSize: 12 },
-  actionCard: { backgroundColor: colors.white, borderRadius: 12, padding: 16, borderWidth: 1, borderColor: colors.border, marginVertical: 12, gap: 6 },
-  whatsappButton: { backgroundColor: "#25d366", borderRadius: 8, paddingVertical: 11, alignItems: "center", marginTop: 6 },
+  actionCard: {
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginVertical: 12,
+    gap: 6,
+    shadowColor: colors.ink,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  whatsappButton: {
+    backgroundColor: "#25d366",
+    borderRadius: 8,
+    paddingVertical: 11,
+    alignItems: "center",
+    marginTop: 6,
+    shadowColor: "#25d366",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  whatsappButtonPressed: { transform: [{ scale: 0.97 }], opacity: 0.92 },
   whatsappButtonText: { color: "#fff", fontWeight: "600", fontSize: 13.5 },
   tabRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 12 },
   tabButton: { borderWidth: 1, borderColor: colors.border, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8 },
   tabButtonActive: { backgroundColor: colors.brass, borderColor: colors.brass },
-  card: { backgroundColor: colors.white, borderRadius: 12, padding: 14, borderWidth: 1, borderColor: colors.border, marginBottom: 10 },
+  card: {
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginBottom: 10,
+    shadowColor: colors.ink,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
+  },
   link: { color: colors.brass, fontSize: 13, fontWeight: "600" },
   original: { marginTop: 8, fontStyle: "italic", color: colors.textMuted, fontSize: 13 },
   tlPlain: { marginTop: 6, marginBottom: 4, fontWeight: "600" },
