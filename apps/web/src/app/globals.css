@@ -397,20 +397,6 @@ a.card:focus-visible {
   transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
-/* Com os rótulos escondidos (ver breakpoint abaixo), sobra espaço pra
-   deixar os números das etapas maiores — em 22px/0.7rem os algarismos
-   4, 5 e 6 ficam quase indistinguíveis de 3 numa tela pequena. */
-@media (max-width: 560px) {
-  .phase-step-dot {
-    width: 26px;
-    height: 26px;
-    font-size: 0.82rem;
-  }
-  .phase-step-line {
-    top: 12px;
-  }
-}
-
 .phase-step-line {
   position: absolute;
   top: 10px;
@@ -420,6 +406,23 @@ a.card:focus-visible {
   background: var(--fog-2);
   z-index: 0;
   transition: background-color 0.3s ease;
+}
+
+/* Com os rótulos escondidos (ver breakpoint abaixo), sobra espaço pra
+   deixar os números das etapas maiores — em 22px/0.7rem os algarismos
+   4, 5 e 6 ficam quase indistinguíveis de 3 numa tela pequena. Precisa
+   vir depois da regra base de .phase-step-line acima pra realmente
+   sobrescrever o "top" — definida antes, a regra de cima (mesma
+   especificidade, mas declarada depois no arquivo) sempre ganhava. */
+@media (max-width: 560px) {
+  .phase-step-dot {
+    width: 26px;
+    height: 26px;
+    font-size: 0.82rem;
+  }
+  .phase-step-line {
+    top: 12px;
+  }
 }
 
 .phase-step:first-child .phase-step-line {
