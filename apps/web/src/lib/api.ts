@@ -12,14 +12,21 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
  * leitura/escrita de token aqui.
  */
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
-    ...options,
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      ...options,
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    });
+  } catch {
+    // A internet caiu, o servidor está fora do ar etc. — sem isso, quem usa
+    // vê um erro técnico em inglês ("Failed to fetch") sem entender nada.
+    throw new Error("Não foi possível conectar. Verifique sua internet e tente novamente.");
+  }
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.error ?? `Erro ${res.status}`);

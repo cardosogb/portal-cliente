@@ -9,7 +9,7 @@ import { Logo } from "@/components/Logo";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [cpf, setCpf] = useState("12345678909");
+  const [cpf, setCpf] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);

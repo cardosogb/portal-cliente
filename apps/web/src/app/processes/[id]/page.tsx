@@ -33,6 +33,7 @@ export default function ProcessPage() {
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("timeline");
   const [showOriginal, setShowOriginal] = useState<Record<string, boolean>>({});
+  const [retryCount, setRetryCount] = useState(0);
   const { message: toastMessage, showToast } = useToast();
 
   useEffect(() => {
@@ -41,17 +42,43 @@ export default function ProcessPage() {
         router.push("/");
         return;
       }
+      setError(null);
       getProcess(params.id)
         .then((data) => setProcess(data.process))
-        .catch((err) => setError(err instanceof Error ? err.message : "Erro ao carregar."));
+        .catch((err) => setError(err instanceof Error ? err.message : "Não foi possível carregar este processo agora."));
     });
-  }, [params.id, router]);
+  }, [params.id, router, retryCount]);
 
   if (error) {
     return (
-      <div className="container">
-        <p style={{ color: "var(--wine)" }}>{error}</p>
-        <Link href="/dashboard">Voltar</Link>
+      <div>
+        <nav className="top-nav">
+          <Logo height={36} variant="icon" href="/dashboard" />
+        </nav>
+        <main className="container">
+          <div
+            role="alert"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              flexWrap: "wrap",
+              color: "var(--wine)",
+              background: "#f6e6c8",
+              padding: "12px 16px",
+              borderRadius: 8,
+              marginBottom: 16,
+            }}
+          >
+            <span>⚠️ {error}</span>
+            <button type="button" className="btn-secondary" onClick={() => setRetryCount((c) => c + 1)}>
+              Tentar novamente
+            </button>
+          </div>
+          <Link href="/dashboard" className="btn-secondary" style={{ display: "inline-block", textDecoration: "none" }}>
+            ← Voltar para seus processos
+          </Link>
+        </main>
       </div>
     );
   }
@@ -76,7 +103,37 @@ export default function ProcessPage() {
   const needsAction = process.nextAction.type === "acao";
 
   function copyProcessNumber() {
-    navigator.clipboard?.writeText(process!.number).then(() => showToast("Número copiado!"));
+    const number = process!.number;
+    // navigator.clipboard não existe em todo navegador/contexto (ex.: acesso
+    // por http:// em vez de https://, ou navegador mais antigo). Sem um
+    // plano B, o botão "copia" e não dá nenhum sinal — alguém sem prática
+    // com tecnologia vai achar que travou e ficar clicando sem entender.
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(number).then(
+        () => showToast("Número copiado!"),
+        () => copyWithFallback(number)
+      );
+    } else {
+      copyWithFallback(number);
+    }
+  }
+
+  function copyWithFallback(text: string) {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    try {
+      const copied = document.execCommand("copy");
+      showToast(copied ? "Número copiado!" : "Não deu pra copiar automaticamente — o número é " + text);
+    } catch {
+      showToast("Não deu pra copiar automaticamente — o número é " + text);
+    } finally {
+      document.body.removeChild(textarea);
+    }
   }
 
   return (
@@ -92,7 +149,7 @@ export default function ProcessPage() {
           {areaLabel(process.area)} · {process.court}
         </p>
         <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-          <h1 className="serif" style={{ margin: "4px 0 4px" }}>Processo nº {process.number}</h1>
+          <h1 className="serif" style={{ margin: "4px 0 4px", minWidth: 0, overflowWrap: "anywhere" }}>Processo nº {process.number}</h1>
           <button
             type="button"
             onClick={copyProcessNumber}

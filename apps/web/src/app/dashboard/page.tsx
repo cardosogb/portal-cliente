@@ -14,6 +14,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const [processes, setProcesses] = useState<LegalProcess[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     getSession().then((session) => {
@@ -25,11 +26,12 @@ export default function DashboardPage() {
         router.push("/admin");
         return;
       }
+      setError(null);
       listProcesses()
         .then((data) => setProcesses(data.processes))
-        .catch((err) => setError(err instanceof Error ? err.message : "Erro ao carregar."));
+        .catch((err) => setError(err instanceof Error ? err.message : "Não foi possível carregar seus processos agora."));
     });
-  }, [router]);
+  }, [router, retryCount]);
 
   function logout() {
     apiLogout().finally(() => router.push("/"));
@@ -50,7 +52,27 @@ export default function DashboardPage() {
             ❓ Central de ajuda
           </Link>
         </div>
-        {error && <p style={{ color: "var(--wine)" }}>{error}</p>}
+        {error && (
+          <div
+            role="alert"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              flexWrap: "wrap",
+              color: "var(--wine)",
+              background: "#f6e6c8",
+              padding: "12px 16px",
+              borderRadius: 8,
+              marginTop: 16,
+            }}
+          >
+            <span>⚠️ {error}</span>
+            <button type="button" className="btn-secondary" onClick={() => setRetryCount((c) => c + 1)}>
+              Tentar novamente
+            </button>
+          </div>
+        )}
         {!processes && !error && (
           <div style={{ display: "grid", gap: 16, marginTop: 16 }}>
             <CardSkeleton />
@@ -67,8 +89,8 @@ export default function DashboardPage() {
         <div style={{ display: "grid", gap: 16, marginTop: 16 }}>
           {processes?.map((p) => (
             <Link key={p.id} href={`/processes/${p.id}`} className="card" style={{ display: "block", textDecoration: "none" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-                <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: 8, flexWrap: "wrap" }}>
+                <div style={{ minWidth: 0 }}>
                   <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
                     {areaLabel(p.area)} · {p.court}
                   </p>

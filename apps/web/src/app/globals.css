@@ -310,6 +310,7 @@ button {
 
 .phase-step {
   flex: 1;
+  min-width: 0;
   text-align: center;
   position: relative;
 }
@@ -368,6 +369,19 @@ button {
 .phase-step.current .phase-step-label {
   color: var(--text);
   font-weight: 600;
+}
+
+/* Em tela bem estreita, 6 nomes de fase espremidos ficam ilegíveis
+   (sobrepõem um no outro) — mostra só o nome da etapa atual; a fase já
+   aparece por extenso no texto acima da linha do tempo mesmo assim. */
+@media (max-width: 380px) {
+  .phase-step-label {
+    display: none;
+  }
+  .phase-step.current .phase-step-label {
+    display: block;
+    font-size: 0.68rem;
+  }
 }
 
 /* ---------- Pergunta/resposta recolhível (ajuda) ---------- */

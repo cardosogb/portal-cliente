@@ -20,14 +20,21 @@ export async function clearToken() {
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = await getToken();
-  const res = await fetch(`${API_URL}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
-    },
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options.headers,
+      },
+    });
+  } catch {
+    // Sem internet, wi-fi caiu etc. — sem isso, quem usa o app vê um erro
+    // técnico em inglês sem entender nada.
+    throw new Error("Não foi possível conectar. Verifique sua internet e tente novamente.");
+  }
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.error ?? `Erro ${res.status}`);
