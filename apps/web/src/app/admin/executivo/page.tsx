@@ -190,6 +190,7 @@ export default function ExecutiveDashboardPage() {
                 </tbody>
               </table>
             </div>
+            <p className="table-scroll-hint">→ Arraste a tabela para o lado para ver todas as colunas.</p>
 
             <h2 className="serif" style={{ marginBottom: 10 }}>Equipe com acesso ao painel interno</h2>
             <div className="stagger-fade" style={{ display: "grid", gap: 8 }}>

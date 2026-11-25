@@ -149,7 +149,7 @@ export default function ProcessPage() {
           {areaLabel(process.area)} · {process.court}
         </p>
         <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-          <h1 className="serif" style={{ margin: "4px 0 4px", minWidth: 0, overflowWrap: "anywhere" }}>Processo nº {process.number}</h1>
+          <h1 className="serif" style={{ margin: "4px 0 4px", fontSize: "1.5rem", minWidth: 0, overflowWrap: "anywhere" }}>Processo nº {process.number}</h1>
           <button
             type="button"
             onClick={copyProcessNumber}
@@ -230,9 +230,11 @@ export default function ProcessPage() {
               />
             ) : (
               process.documents.map((doc) => (
-                <a key={doc.id} href={doc.url} className="card" style={{ display: "flex", justifyContent: "space-between", textDecoration: "none" }}>
-                  <span>{doc.title}</span>
-                  <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>{formatDatePtBR(doc.uploadedAt)} · {doc.sizeKb} KB</span>
+                <a key={doc.id} href={doc.url} className="card" style={{ display: "block", textDecoration: "none" }}>
+                  <span style={{ display: "block" }}>{doc.title}</span>
+                  <span style={{ display: "block", marginTop: 4, fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                    {formatDatePtBR(doc.uploadedAt)} · {doc.sizeKb} KB
+                  </span>
                 </a>
               ))
             )}

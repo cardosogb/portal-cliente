@@ -251,6 +251,23 @@ a.card:focus-visible {
   border-spacing: 0;
 }
 
+/* Em tela estreita a tabela corta colunas e rola na horizontal, mas
+   nada nela sugere isso — parece que a informação simplesmente sumiu.
+   Esse aviso só aparece abaixo da largura onde a tabela já não cabe
+   inteira. */
+.table-scroll-hint {
+  display: none;
+  margin: 8px 2px 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 700px) {
+  .table-scroll-hint {
+    display: block;
+  }
+}
+
 .admin-table th {
   text-align: left;
   padding: 10px 12px;
@@ -352,7 +369,8 @@ a.card:focus-visible {
   display: flex;
   align-items: flex-start;
   gap: 2px;
-  margin: 14px 0 18px;
+  margin: 14px auto 18px;
+  max-width: 520px;
 }
 
 .phase-step {

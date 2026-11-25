@@ -210,6 +210,7 @@ export default function AdminPage() {
                 </tbody>
               </table>
             </div>
+            <p className="table-scroll-hint">→ Arraste a tabela para o lado para ver todas as colunas.</p>
 
             <h2 className="serif">Satisfação consolidada por advogado</h2>
             <div className="stagger-fade" style={{ display: "grid", gap: 8 }}>
