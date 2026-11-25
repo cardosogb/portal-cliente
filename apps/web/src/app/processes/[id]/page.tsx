@@ -14,6 +14,9 @@ import {
 } from "@portal/shared";
 import { getProcess, getSession } from "@/lib/api";
 import { Logo } from "@/components/Logo";
+import { PhaseSteps } from "@/components/PhaseSteps";
+import { EmptyState } from "@/components/EmptyState";
+import { Toast, useToast } from "@/components/Toast";
 
 type Tab = "timeline" | "documentos" | "financeiro";
 
@@ -30,6 +33,7 @@ export default function ProcessPage() {
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("timeline");
   const [showOriginal, setShowOriginal] = useState<Record<string, boolean>>({});
+  const { message: toastMessage, showToast } = useToast();
 
   useEffect(() => {
     getSession().then((session) => {
@@ -54,13 +58,26 @@ export default function ProcessPage() {
 
   if (!process) {
     return (
-      <div className="container">
-        <p>Carregando...</p>
+      <div>
+        <nav className="top-nav">
+          <Logo height={36} variant="icon" href="/dashboard" />
+        </nav>
+        <main className="container">
+          <div className="card">
+            <div className="skeleton" style={{ width: "30%", height: 12, marginBottom: 12 }} />
+            <div className="skeleton" style={{ width: "60%", height: 24, marginBottom: 12 }} />
+            <div className="skeleton" style={{ width: "80%", height: 14 }} />
+          </div>
+        </main>
       </div>
     );
   }
 
   const needsAction = process.nextAction.type === "acao";
+
+  function copyProcessNumber() {
+    navigator.clipboard?.writeText(process!.number).then(() => showToast("Número copiado!"));
+  }
 
   return (
     <div>
@@ -74,10 +91,22 @@ export default function ProcessPage() {
         <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
           {areaLabel(process.area)} · {process.court}
         </p>
-        <h1 className="serif" style={{ margin: "4px 0 4px" }}>Processo nº {process.number}</h1>
-        <p style={{ margin: "0 0 16px", fontSize: "0.85rem", color: "var(--text-muted)" }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+          <h1 className="serif" style={{ margin: "4px 0 4px" }}>Processo nº {process.number}</h1>
+          <button
+            type="button"
+            onClick={copyProcessNumber}
+            className="btn-secondary"
+            style={{ fontSize: "0.75rem", padding: "4px 10px" }}
+            title="Copiar número do processo"
+          >
+            📋 Copiar número
+          </button>
+        </div>
+        <p style={{ margin: "0 0 4px", fontSize: "0.85rem", color: "var(--text-muted)" }}>
           Fase atual: <strong>{process.currentPhase}</strong> — {phaseExplanation(process.currentPhase)}
         </p>
+        <PhaseSteps currentPhase={process.currentPhase} />
 
         <div className="card" style={{ marginBottom: 20 }}>
           <p style={{ margin: 0, fontWeight: 600, color: needsAction ? "var(--wine)" : "var(--forest)" }}>
@@ -135,18 +164,33 @@ export default function ProcessPage() {
 
         {tab === "documentos" && (
           <div style={{ display: "grid", gap: 8 }}>
-            {process.documents.map((doc) => (
-              <a key={doc.id} href={doc.url} className="card" style={{ display: "flex", justifyContent: "space-between", textDecoration: "none" }}>
-                <span>{doc.title}</span>
-                <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>{formatDatePtBR(doc.uploadedAt)} · {doc.sizeKb} KB</span>
-              </a>
-            ))}
+            {process.documents.length === 0 ? (
+              <EmptyState
+                icon="📄"
+                title="Nenhum documento disponível ainda."
+                description="Assim que o escritório anexar um documento ao processo, ele aparece aqui."
+              />
+            ) : (
+              process.documents.map((doc) => (
+                <a key={doc.id} href={doc.url} className="card" style={{ display: "flex", justifyContent: "space-between", textDecoration: "none" }}>
+                  <span>{doc.title}</span>
+                  <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>{formatDatePtBR(doc.uploadedAt)} · {doc.sizeKb} KB</span>
+                </a>
+              ))
+            )}
           </div>
         )}
 
         {tab === "financeiro" && (
           <div style={{ display: "grid", gap: 8 }}>
-            {process.financial.map((f) => (
+            {process.financial.length === 0 ? (
+              <EmptyState
+                icon="💳"
+                title="Nenhuma movimentação financeira registrada."
+                description="Parcelas e pagamentos relacionados a este processo aparecem aqui quando existirem."
+              />
+            ) : (
+              process.financial.map((f) => (
               <div key={f.id} className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
                   <p style={{ margin: 0 }}>{f.description}</p>
@@ -157,10 +201,16 @@ export default function ProcessPage() {
                   <span className={f.status === "pago" ? "pill pill-ok" : "pill pill-action"}>{f.status}</span>
                 </div>
               </div>
-            ))}
+              ))
+            )}
           </div>
         )}
+
+        <p style={{ marginTop: 32, fontSize: "0.8rem", textAlign: "center" }}>
+          <Link href="/ajuda" style={{ color: "var(--text-muted)" }}>❓ Dúvidas sobre o que você está vendo aqui?</Link>
+        </p>
       </main>
+      <Toast message={toastMessage} />
     </div>
   );
 }

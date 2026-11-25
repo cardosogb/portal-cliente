@@ -263,3 +263,204 @@ button {
   font-size: 1.6rem;
   margin-bottom: 8px;
 }
+
+/* ---------- Estado vazio genérico (dashboard, documentos, financeiro) ---------- */
+.empty-state {
+  padding: 32px 20px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.empty-state .icon {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.empty-state .title {
+  margin: 0 0 4px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.empty-state .desc {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+/* ---------- Skeleton de carregamento ---------- */
+.skeleton {
+  background: linear-gradient(90deg, var(--fog-2) 25%, var(--border) 37%, var(--fog-2) 63%);
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+  border-radius: 6px;
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ---------- Linha do tempo visual da fase do processo ---------- */
+.phase-steps {
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+  margin: 14px 0 18px;
+}
+
+.phase-step {
+  flex: 1;
+  text-align: center;
+  position: relative;
+}
+
+.phase-step-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  margin: 0 auto 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: var(--fog-2);
+  color: var(--text-muted);
+  border: 2px solid var(--fog-2);
+}
+
+.phase-step-line {
+  position: absolute;
+  top: 10px;
+  left: -50%;
+  width: 100%;
+  height: 2px;
+  background: var(--fog-2);
+  z-index: 0;
+}
+
+.phase-step:first-child .phase-step-line {
+  display: none;
+}
+
+.phase-step.done .phase-step-dot {
+  background: var(--forest);
+  border-color: var(--forest);
+  color: var(--white);
+}
+
+.phase-step.done .phase-step-line {
+  background: var(--forest);
+}
+
+.phase-step.current .phase-step-dot {
+  background: var(--white);
+  border-color: var(--brass);
+  color: var(--brass);
+}
+
+.phase-step-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  line-height: 1.2;
+}
+
+.phase-step.current .phase-step-label {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ---------- Pergunta/resposta recolhível (ajuda) ---------- */
+.faq-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--white);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.faq-question {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 16px 18px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: var(--text);
+}
+
+.faq-question .chevron {
+  flex: none;
+  transition: transform 0.15s;
+  color: var(--brass);
+}
+
+.faq-item.open .faq-question .chevron {
+  transform: rotate(180deg);
+}
+
+.faq-answer {
+  padding: 0 18px 16px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+/* ---------- Confirmação rápida (toast) ---------- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%) translateY(0);
+  background: var(--ink);
+  color: var(--white);
+  padding: 12px 20px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(18, 32, 61, 0.25);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: toast-in 0.2s ease;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ---------- Campo com validação em tempo real (login) ---------- */
+.field-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.field-status.ok { color: var(--forest); }
+.field-status.pending { color: var(--text-muted); }
+
+.input-wrap {
+  position: relative;
+}
+
+.input-wrap .input {
+  padding-right: 40px;
+}
+
+.input-check {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--forest);
+  font-weight: 700;
+}

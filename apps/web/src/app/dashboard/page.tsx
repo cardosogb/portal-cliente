@@ -7,6 +7,8 @@ import type { LegalProcess } from "@portal/shared";
 import { areaLabel, statusLabel } from "@portal/shared";
 import { getSession, listProcesses, logout as apiLogout } from "@/lib/api";
 import { Logo } from "@/components/Logo";
+import { CardSkeleton } from "@/components/Skeleton";
+import { EmptyState } from "@/components/EmptyState";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -42,9 +44,26 @@ export default function DashboardPage() {
         </button>
       </nav>
       <main className="container">
-        <h1 className="serif" style={{ fontSize: "1.6rem" }}>Seus processos</h1>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
+          <h1 className="serif" style={{ fontSize: "1.6rem", margin: 0 }}>Seus processos</h1>
+          <Link href="/ajuda" style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
+            ❓ Central de ajuda
+          </Link>
+        </div>
         {error && <p style={{ color: "var(--wine)" }}>{error}</p>}
-        {!processes && !error && <p>Carregando...</p>}
+        {!processes && !error && (
+          <div style={{ display: "grid", gap: 16, marginTop: 16 }}>
+            <CardSkeleton />
+            <CardSkeleton />
+          </div>
+        )}
+        {processes && processes.length === 0 && (
+          <EmptyState
+            icon="📂"
+            title="Você ainda não tem nenhum processo vinculado."
+            description="Assim que o escritório vincular um processo ao seu cadastro, ele aparece aqui automaticamente — não precisa fazer nada."
+          />
+        )}
         <div style={{ display: "grid", gap: 16, marginTop: 16 }}>
           {processes?.map((p) => (
             <Link key={p.id} href={`/processes/${p.id}`} className="card" style={{ display: "block", textDecoration: "none" }}>

@@ -52,3 +52,17 @@ const PHASE_EXPLANATIONS: Record<string, string> = {
 export function phaseExplanation(phase: string): string {
   return PHASE_EXPLANATIONS[phase] ?? "Seu processo está em andamento nesta etapa.";
 }
+
+/**
+ * Ordem "normal" das fases de um processo judicial, só pra desenhar uma
+ * linha do tempo visual (passo a passo) — ajuda quem não é da área a
+ * entender de relance onde o processo está, sem precisar ler um parágrafo.
+ * Processos reais variam bastante, então isso é só um guia aproximado:
+ * uma fase fora dessa lista (ex.: algo bem específico vindo do ADVBOX)
+ * simplesmente não aparece nos passos, sem quebrar nada.
+ */
+export const PHASE_ORDER = ["Distribuição", "Citação", "Instrução", "Sentença", "Recurso", "Execução"];
+
+export function phaseStepIndex(phase: string): number {
+  return PHASE_ORDER.indexOf(phase);
+}

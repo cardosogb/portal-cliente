@@ -221,6 +221,21 @@ prototipadas end-to-end (com dados mockados):
       `requireAccessLevel("executivo")`) — o link só aparece pra quem tem
       acesso, mas a rota em si também recusa quem não tem, mesmo entrando
       pela URL direto
+- [x] Interatividade pensada pra quem não tem intimidade com tecnologia:
+      - **Central de ajuda** (`/ajuda`) com perguntas frequentes em formato
+        de acordeão — respondendo dúvidas comuns sem precisar contatar o
+        escritório (propositalmente sem link de WhatsApp: a ideia é reduzir
+        mensagens, não criar mais um canal pra isso)
+      - **Linha do tempo visual da fase do processo** (`PhaseSteps`), com
+        passos marcados/atual/futuros, além do texto
+      - **Validação em tempo real no login** (✓ quando o CPF/telefone e a
+        data de nascimento estão completos, "faltam N números" enquanto
+        a pessoa digita)
+      - **Estados vazios explicados** (sem processos, sem documentos, sem
+        parcelas) em vez de tela em branco
+      - **Carregamento com esqueleto** (`Skeleton`/`CardSkeleton`) em vez de
+        só um "Carregando..." seco
+      - **Confirmação rápida (toast)** ao copiar o número do processo
 
 Ainda não implementado (depende de integrações externas reais):
 
