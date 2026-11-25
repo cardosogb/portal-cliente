@@ -14,6 +14,7 @@ import {
 } from "@/lib/api";
 import { formatDatePtBR, statusLabel } from "@portal/shared";
 import { Logo } from "@/components/Logo";
+import { WarningIcon, SearchIcon } from "@/components/Icons";
 
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/);
@@ -97,7 +98,7 @@ export default function AdminPage() {
             </Link>
           )}
         </div>
-        {!data && <p>Carregando...</p>}
+        {!data && <p>Carregando…</p>}
         {data && (
           <>
             <div
@@ -185,7 +186,7 @@ export default function AdminPage() {
                         <td>
                           {r.isStale ? (
                             <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: "var(--wine)", fontWeight: 600 }}>
-                              <span aria-hidden="true">⚠️</span> {daysSinceLabel(r.daysSinceLastMovement)}
+                              <WarningIcon /> {daysSinceLabel(r.daysSinceLastMovement)}
                             </span>
                           ) : (
                             <span style={{ color: "var(--text-muted)" }}>{daysSinceLabel(r.daysSinceLastMovement)}</span>
@@ -201,7 +202,7 @@ export default function AdminPage() {
                     <tr>
                       <td colSpan={6}>
                         <div className="admin-empty-state">
-                          <div className="icon">🔍</div>
+                          <div className="icon"><SearchIcon /></div>
                           Nenhum cliente ou processo encontrado para &ldquo;{search}&rdquo;.
                         </div>
                       </td>
@@ -242,7 +243,7 @@ export default function AdminPage() {
                     <tbody>
                       {!auditLog && (
                         <tr>
-                          <td colSpan={3}>Carregando...</td>
+                          <td colSpan={3}>Carregando…</td>
                         </tr>
                       )}
                       {auditLog?.map((entry, i) => (

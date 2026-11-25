@@ -10,6 +10,7 @@ import { Logo } from "@/components/Logo";
 import { CardSkeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { HelpIcon } from "@/components/HelpIcon";
+import { WarningIcon, FolderIcon } from "@/components/Icons";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -68,7 +69,7 @@ export default function DashboardPage() {
               marginTop: 16,
             }}
           >
-            <span>⚠️ {error}</span>
+            <span><WarningIcon /> {error}</span>
             <button type="button" className="btn-secondary" onClick={() => setRetryCount((c) => c + 1)}>
               Tentar novamente
             </button>
@@ -82,7 +83,7 @@ export default function DashboardPage() {
         )}
         {processes && processes.length === 0 && (
           <EmptyState
-            icon="📂"
+            icon={<FolderIcon />}
             title="Você ainda não tem nenhum processo vinculado."
             description="Assim que o escritório vincular um processo ao seu cadastro, ele aparece aqui automaticamente — não precisa fazer nada."
           />

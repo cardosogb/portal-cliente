@@ -17,6 +17,7 @@ import { Logo } from "@/components/Logo";
 import { PhaseSteps } from "@/components/PhaseSteps";
 import { EmptyState } from "@/components/EmptyState";
 import { HelpIcon } from "@/components/HelpIcon";
+import { WarningIcon, ClipboardIcon, DocumentIcon, CardIcon } from "@/components/Icons";
 import { Toast, useToast } from "@/components/Toast";
 
 type Tab = "timeline" | "documentos" | "financeiro";
@@ -71,7 +72,7 @@ export default function ProcessPage() {
               marginBottom: 16,
             }}
           >
-            <span>⚠️ {error}</span>
+            <span><WarningIcon /> {error}</span>
             <button type="button" className="btn-secondary" onClick={() => setRetryCount((c) => c + 1)}>
               Tentar novamente
             </button>
@@ -155,10 +156,10 @@ export default function ProcessPage() {
             type="button"
             onClick={copyProcessNumber}
             className="btn-secondary"
-            style={{ fontSize: "0.75rem", padding: "4px 10px" }}
+            style={{ fontSize: "0.75rem", padding: "4px 10px", minHeight: 44, display: "inline-flex", alignItems: "center" }}
             title="Copiar número do processo"
           >
-            📋 Copiar número
+            <ClipboardIcon /> Copiar número
           </button>
         </div>
         <p style={{ margin: "0 0 4px", fontSize: "0.85rem", color: "var(--text-muted)" }}>
@@ -206,7 +207,7 @@ export default function ProcessPage() {
                 <p style={{ margin: "0 0 10px", fontSize: "0.9rem", color: "var(--text-muted)" }}>{event.explanation}</p>
                 <button
                   className="btn-secondary"
-                  style={{ fontSize: "0.8rem", padding: "6px 12px" }}
+                  style={{ fontSize: "0.8rem", padding: "6px 12px", minHeight: 44 }}
                   onClick={() => setShowOriginal((s) => ({ ...s, [event.id]: !s[event.id] }))}
                 >
                   {showOriginal[event.id] ? "Ocultar texto original" : "Ver texto original do processo"}
@@ -225,7 +226,7 @@ export default function ProcessPage() {
           <div className="stagger-fade" style={{ display: "grid", gap: 8 }}>
             {process.documents.length === 0 ? (
               <EmptyState
-                icon="📄"
+                icon={<DocumentIcon />}
                 title="Nenhum documento disponível ainda."
                 description="Assim que o escritório anexar um documento ao processo, ele aparece aqui."
               />
@@ -246,7 +247,7 @@ export default function ProcessPage() {
           <div className="stagger-fade" style={{ display: "grid", gap: 8 }}>
             {process.financial.length === 0 ? (
               <EmptyState
-                icon="💳"
+                icon={<CardIcon />}
                 title="Nenhuma movimentação financeira registrada."
                 description="Parcelas e pagamentos relacionados a este processo aparecem aqui quando existirem."
               />

@@ -58,3 +58,11 @@ export function listProcesses() {
 export function getProcess(id: string) {
   return request<{ process: LegalProcess }>(`/processes/${id}`);
 }
+
+export async function logout(): Promise<void> {
+  await request("/auth/logout", { method: "POST" }).catch(() => {
+    // Mesmo se a chamada falhar (sem internet, por exemplo), o usuário
+    // precisa conseguir sair do app localmente.
+  });
+  await clearToken();
+}

@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { View, Text, FlatList, Pressable, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, Stack, Link } from "expo-router";
 import type { LegalProcess } from "@portal/shared";
 import { areaLabel, statusLabel } from "@portal/shared";
-import { getToken, listProcesses } from "@/lib/api";
+import { getToken, listProcesses, logout } from "@/lib/api";
 import { colors } from "@/theme/colors";
 import { Logo } from "@/components/Logo";
 import { FadeInView } from "@/components/FadeInView";
 
 export default function DashboardScreen() {
   const router = useRouter();
-  const [processes, setProcesses] = useState<LegalProcess[]>([]);
+  const [processes, setProcesses] = useState<LegalProcess[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -29,15 +29,49 @@ export default function DashboardScreen() {
     })();
   }, [router]);
 
+  async function handleLogout() {
+    await logout();
+    router.replace("/");
+  }
+
   return (
     <View style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <Pressable onPress={handleLogout} hitSlop={10} style={styles.headerButton}>
+              <Text style={styles.headerButtonText}>Sair</Text>
+            </Pressable>
+          ),
+        }}
+      />
       <View style={{ marginBottom: 16 }}>
         <Logo height={32} variant="full" />
       </View>
-      <Text style={styles.sectionTitle}>Seus processos</Text>
+      <View style={styles.titleRow}>
+        <Text style={styles.sectionTitle}>Seus processos</Text>
+        <Link href="/ajuda" style={styles.helpLink}>
+          Central de ajuda
+        </Link>
+      </View>
       {error && <Text style={styles.error}>{error}</Text>}
+      {processes === null && !error && (
+        <View style={{ gap: 12 }}>
+          <View style={[styles.card, styles.skeletonCard]} />
+          <View style={[styles.card, styles.skeletonCard]} />
+        </View>
+      )}
+      {processes !== null && processes.length === 0 && !error && (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyTitle}>Você ainda não tem nenhum processo vinculado.</Text>
+          <Text style={styles.emptyDesc}>
+            Assim que o escritório vincular um processo ao seu cadastro, ele aparece aqui
+            automaticamente — não precisa fazer nada.
+          </Text>
+        </View>
+      )}
       <FlatList
-        data={processes}
+        data={processes ?? []}
         keyExtractor={(p) => p.id}
         contentContainerStyle={{ gap: 12 }}
         renderItem={({ item, index }) => (
@@ -73,7 +107,15 @@ export default function DashboardScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.fog, padding: 16 },
-  sectionTitle: { fontSize: 20, fontWeight: "700", color: colors.text, marginBottom: 12 },
+  titleRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12, flexWrap: "wrap", gap: 8 },
+  sectionTitle: { fontSize: 20, fontWeight: "700", color: colors.text },
+  helpLink: { color: colors.textMuted, fontSize: 13, textDecorationLine: "underline" },
+  headerButton: { minHeight: 44, minWidth: 44, justifyContent: "center", alignItems: "flex-end" },
+  headerButtonText: { color: colors.white, fontSize: 14 },
+  skeletonCard: { height: 84, backgroundColor: colors.border, borderColor: colors.border },
+  emptyState: { padding: 24, alignItems: "center" },
+  emptyTitle: { fontWeight: "600", color: colors.text, textAlign: "center", marginBottom: 4 },
+  emptyDesc: { color: colors.textMuted, fontSize: 13, textAlign: "center" },
   error: { color: colors.wine, marginBottom: 12 },
   card: {
     backgroundColor: colors.white,

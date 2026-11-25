@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { View, Text, ScrollView, Pressable, StyleSheet, Linking } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, Link } from "expo-router";
 import type { LegalProcess } from "@portal/shared";
 import {
   formatBRL,
@@ -34,7 +34,7 @@ export default function ProcessScreen() {
   if (!process) {
     return (
       <View style={styles.container}>
-        <Text>Carregando...</Text>
+        <Text>Carregando…</Text>
       </View>
     );
   }
@@ -87,7 +87,11 @@ export default function ProcessScreen() {
               <Text style={styles.mutedSmall}>{formatDatePtBR(event.date)}</Text>
               <Text style={styles.tlPlain}>{event.plainText}</Text>
               <Text style={styles.tlExplanation}>{event.explanation}</Text>
-              <Pressable onPress={() => setExpanded((s) => ({ ...s, [event.id]: !s[event.id] }))}>
+              <Pressable
+                onPress={() => setExpanded((s) => ({ ...s, [event.id]: !s[event.id] }))}
+                style={styles.linkTouchArea}
+                hitSlop={8}
+              >
                 <Text style={styles.link}>
                   {expanded[event.id] ? "Ocultar texto original" : "Ver texto original do processo"}
                 </Text>
@@ -120,6 +124,10 @@ export default function ProcessScreen() {
             </FadeInView>
           ))}
       </FadeInView>
+
+      <Link href="/ajuda" style={styles.helpLink}>
+        Dúvidas sobre o que você está vendo aqui?
+      </Link>
     </ScrollView>
   );
 }
@@ -174,6 +182,8 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   link: { color: colors.brass, fontSize: 13, fontWeight: "600" },
+  linkTouchArea: { minHeight: 44, justifyContent: "center" },
+  helpLink: { color: colors.textMuted, fontSize: 13, textAlign: "center", marginTop: 16 },
   original: { marginTop: 8, fontStyle: "italic", color: colors.textMuted, fontSize: 13 },
   tlPlain: { marginTop: 6, marginBottom: 4, fontWeight: "600" },
   tlExplanation: { marginBottom: 10, fontSize: 13.5, color: colors.textMuted },

@@ -1,9 +1,12 @@
+import type { ReactNode } from "react";
+import { InboxIcon } from "@/components/Icons";
+
 export function EmptyState({
-  icon = "📭",
+  icon = <InboxIcon />,
   title,
   description,
 }: {
-  icon?: string;
+  icon?: ReactNode;
   title: string;
   description?: string;
 }) {

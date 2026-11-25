@@ -39,12 +39,14 @@ function BarRow({ label, value, max, animate }: { label: string; value: number; 
       <span style={{ width: 140, fontSize: "0.85rem", flexShrink: 0 }}>{label}</span>
       <div style={{ flex: 1, background: "var(--fog-2)", borderRadius: 4, height: 10 }}>
         <div
+          className="bar-fill"
           style={{
-            width: animate ? `${pct}%` : "0%",
+            width: "100%",
+            transform: `scaleX(${animate ? pct / 100 : 0})`,
+            transformOrigin: "left",
             background: "var(--brass)",
             borderRadius: 4,
             height: 10,
-            transition: "width 0.7s cubic-bezier(.22,1,.36,1)",
           }}
         />
       </div>
@@ -132,7 +134,7 @@ export default function ExecutiveDashboardPage() {
           Visão do desenvolvimento do escritório — equipe e processos. Acesso restrito a TI, Diretoria e CEO.
         </p>
 
-        {!data && <p>Carregando...</p>}
+        {!data && <p>Carregando…</p>}
         {data && (
           <>
             <div className="stagger-fade" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginBottom: 24 }}>

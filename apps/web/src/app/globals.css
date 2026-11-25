@@ -213,8 +213,12 @@ a.card:focus-visible {
 
 .admin-search-clear {
   flex: none;
-  width: 26px;
-  height: 26px;
+  /* 36px, não 44px: é um botão secundário dentro de uma barra de busca
+     compacta (tela de equipe, não do cliente) — ainda assim bem maior
+     que o círculo visual de 26px que tinha antes, pra reduzir erro de
+     toque sem estourar o layout da barra. */
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: none;
   background: var(--fog-2);
@@ -626,9 +630,17 @@ a.card:focus-visible {
   .btn-secondary,
   .btn-whatsapp,
   .phase-step-dot,
-  .phase-step-line {
+  .phase-step-line,
+  .bar-fill {
     transition: none;
   }
+  .toast {
+    animation: none;
+  }
+}
+
+.bar-fill {
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* ---------- Fundo decorativo da tela de login ---------- */

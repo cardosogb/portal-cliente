@@ -6,6 +6,7 @@ import Link from "next/link";
 import { onlyDigits } from "@portal/shared";
 import { login } from "@/lib/api";
 import { Logo } from "@/components/Logo";
+import { WarningIcon } from "@/components/Icons";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -46,6 +47,8 @@ export default function LoginPage() {
                 className="input"
                 type="text"
                 inputMode="numeric"
+                name="cpf"
+                autoComplete="username"
                 placeholder="Só números, sem pontuação"
                 value={cpf}
                 onChange={(e) => setCpf(onlyDigits(e.target.value).slice(0, 11))}
@@ -61,7 +64,7 @@ export default function LoginPage() {
               <span>Se você faz parte da equipe do escritório, também pode entrar com seu telefone.</span>
             </span>
             {cpf.length > 0 && (
-              <span className={`field-status ${cpf.length === 11 ? "ok" : "pending"}`} style={{ marginTop: 4 }}>
+              <span className={`field-status ${cpf.length === 11 ? "ok" : "pending"}`} style={{ marginTop: 4 }} aria-live="polite">
                 {cpf.length === 11 ? "✓ Número completo" : `Faltam ${11 - cpf.length} número(s)`}
               </span>
             )}
@@ -73,6 +76,8 @@ export default function LoginPage() {
                 className="input"
                 type="text"
                 inputMode="numeric"
+                name="birthdate"
+                autoComplete="off"
                 placeholder="DDMM"
                 value={birthDate}
                 onChange={(e) => setBirthDate(onlyDigits(e.target.value).slice(0, 4))}
@@ -85,7 +90,7 @@ export default function LoginPage() {
               )}
             </div>
             {birthDate.length > 0 && (
-              <span className={`field-status ${birthDate.length === 4 ? "ok" : "pending"}`} style={{ marginTop: 4 }}>
+              <span className={`field-status ${birthDate.length === 4 ? "ok" : "pending"}`} style={{ marginTop: 4 }} aria-live="polite">
                 {birthDate.length === 4 ? "✓ Data completa" : `Faltam ${4 - birthDate.length} número(s)`}
               </span>
             )}
@@ -109,11 +114,11 @@ export default function LoginPage() {
                 fontSize: "0.88rem",
               }}
             >
-              <span aria-hidden="true">⚠️</span> {error}
+              <WarningIcon /> {error}
             </p>
           )}
           <button className="btn-primary" type="submit" disabled={loading} style={{ width: "100%" }}>
-            {loading ? "Entrando..." : "Entrar"}
+            {loading ? "Entrando…" : "Entrar"}
           </button>
         </form>
         <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: 16 }}>

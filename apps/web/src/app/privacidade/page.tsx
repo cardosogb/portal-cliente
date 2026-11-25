@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
+import { WarningIcon } from "@/components/Icons";
 
 export const metadata = {
   title: "Privacidade — Portal do Cliente",
@@ -87,7 +88,7 @@ export default function PrivacyPage() {
             color: "var(--ink)",
           }}
         >
-          ⚠️ Este texto é um rascunho-base, escrito para deixar a política de privacidade
+          <WarningIcon /> Este texto é um rascunho-base, escrito para deixar a política de privacidade
           pronta desde já, em linguagem simples. Antes de publicar o portal para clientes de
           verdade, ele precisa ser revisado por um advogado responsável (o próprio
           escritório), para conferir se está de acordo com a LGPD e com a realidade do

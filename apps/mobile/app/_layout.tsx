@@ -20,6 +20,7 @@ export default function RootLayout() {
       <Stack.Screen name="index" options={{ title: "Portal do Cliente" }} />
       <Stack.Screen name="dashboard" options={{ title: "Seus processos" }} />
       <Stack.Screen name="process/[id]" options={{ title: "Processo" }} />
+      <Stack.Screen name="ajuda" options={{ title: "Central de ajuda" }} />
     </Stack>
   );
 }

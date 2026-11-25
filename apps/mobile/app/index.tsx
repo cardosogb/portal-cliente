@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, Link } from "expo-router";
 import { onlyDigits } from "@portal/shared";
 import { login } from "@/lib/api";
 import { colors } from "@/theme/colors";
@@ -48,7 +48,17 @@ export default function LoginScreen() {
           keyboardType="numeric"
           placeholder="Só números, sem pontuação"
           maxLength={11}
+          textContentType="username"
+          autoComplete="username"
         />
+        {cpf.length > 0 && (
+          <Text
+            style={cpf.length === 11 ? styles.fieldStatusOk : styles.fieldStatusPending}
+            accessibilityLiveRegion="polite"
+          >
+            {cpf.length === 11 ? "✓ Número completo" : `Faltam ${11 - cpf.length} número(s)`}
+          </Text>
+        )}
         <Text style={styles.hintSmall}>
           Equipe do escritório: pode entrar com CPF ou telefone.
         </Text>
@@ -61,7 +71,17 @@ export default function LoginScreen() {
           keyboardType="numeric"
           placeholder="DDMM"
           maxLength={4}
+          textContentType="none"
+          autoComplete="off"
         />
+        {birthDate.length > 0 && (
+          <Text
+            style={birthDate.length === 4 ? styles.fieldStatusOk : styles.fieldStatusPending}
+            accessibilityLiveRegion="polite"
+          >
+            {birthDate.length === 4 ? "✓ Data completa" : `Faltam ${4 - birthDate.length} número(s)`}
+          </Text>
+        )}
         <Text style={styles.hintSmall}>
           Os 2 dígitos do dia seguidos dos 2 dígitos do mês em que você nasceu. Exemplo: 5 de
           março → 0503.
@@ -74,10 +94,13 @@ export default function LoginScreen() {
           onPress={handleSubmit}
           disabled={loading}
         >
-          <Text style={styles.buttonText}>{loading ? "Entrando..." : "Entrar"}</Text>
+          <Text style={styles.buttonText}>{loading ? "Entrando…" : "Entrar"}</Text>
         </Pressable>
 
         <Text style={styles.hint}>Demo: CPF 12345678909, nascimento 1204.</Text>
+        <Link href="/ajuda" style={styles.helpLink}>
+          Central de ajuda
+        </Link>
       </FadeInView>
     </View>
   );
@@ -90,6 +113,10 @@ const styles = StyleSheet.create({
   label: { color: colors.fog2, marginBottom: 6, marginTop: 12 },
   input: { backgroundColor: colors.white, borderRadius: 8, padding: 12, fontSize: 16 },
   hintSmall: { color: colors.fog2, fontSize: 11, marginTop: 6 },
+  // colors.forest (verde escuro, pensado pra cards claros) quase some em
+  // cima do fundo escuro da tela de login — aqui precisa de um tom claro.
+  fieldStatusOk: { color: colors.brassLight, fontSize: 12, fontWeight: "600", marginTop: 4 },
+  fieldStatusPending: { color: colors.fog2, fontSize: 12, marginTop: 4 },
   error: { color: "#f2a6a6", marginTop: 12 },
   button: {
     backgroundColor: colors.brass,
@@ -106,4 +133,5 @@ const styles = StyleSheet.create({
   buttonPressed: { transform: [{ scale: 0.97 }], opacity: 0.92 },
   buttonText: { color: colors.white, fontWeight: "700", fontSize: 16 },
   hint: { color: colors.fog2, fontSize: 12, marginTop: 16, textAlign: "center" },
+  helpLink: { color: colors.brassLight, fontSize: 13, marginTop: 14, textAlign: "center" },
 });
