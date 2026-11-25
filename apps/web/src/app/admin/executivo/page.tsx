@@ -25,14 +25,28 @@ function StatTile({ label, value, accent }: { label: string; value: string | num
   );
 }
 
-/** Barra horizontal simples de magnitude (uma cor só — a identidade já vem do rótulo ao lado). */
-function BarRow({ label, value, max }: { label: string; value: number; max: number }) {
+/**
+ * Barra horizontal simples de magnitude (uma cor só — a identidade já vem
+ * do rótulo ao lado). `animate=false` no primeiro render (largura 0) e
+ * `true` logo em seguida faz a barra "crescer" até o valor real, em vez
+ * de já aparecer pronta — dá uma sensação de painel vivo, não só uma
+ * tabela estática.
+ */
+function BarRow({ label, value, max, animate }: { label: string; value: number; max: number; animate: boolean }) {
   const pct = max > 0 ? Math.max((value / max) * 100, value > 0 ? 4 : 0) : 0;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
       <span style={{ width: 140, fontSize: "0.85rem", flexShrink: 0 }}>{label}</span>
       <div style={{ flex: 1, background: "var(--fog-2)", borderRadius: 4, height: 10 }}>
-        <div style={{ width: `${pct}%`, background: "var(--brass)", borderRadius: 4, height: 10 }} />
+        <div
+          style={{
+            width: animate ? `${pct}%` : "0%",
+            background: "var(--brass)",
+            borderRadius: 4,
+            height: 10,
+            transition: "width 0.7s cubic-bezier(.22,1,.36,1)",
+          }}
+        />
       </div>
       <span style={{ width: 28, fontSize: "0.85rem", textAlign: "right", flexShrink: 0, fontVariantNumeric: "tabular-nums" }}>
         {value}
@@ -45,6 +59,7 @@ export default function ExecutiveDashboardPage() {
   const router = useRouter();
   const [data, setData] = useState<ExecutiveOverview | null>(null);
   const [denied, setDenied] = useState(false);
+  const [animateBars, setAnimateBars] = useState(false);
 
   useEffect(() => {
     getSession().then((session) => {
@@ -63,6 +78,15 @@ export default function ExecutiveDashboardPage() {
       getExecutiveOverview().then(setData);
     });
   }, [router]);
+
+  useEffect(() => {
+    if (!data) return;
+    // Começa com as barras em 0 e só deixa crescer num próximo quadro —
+    // se setasse a largura final direto, o navegador nunca anima a
+    // transição (não há "de onde" ir).
+    const raf = requestAnimationFrame(() => setAnimateBars(true));
+    return () => cancelAnimationFrame(raf);
+  }, [data]);
 
   function logout() {
     apiLogout().finally(() => router.push("/"));
@@ -111,7 +135,7 @@ export default function ExecutiveDashboardPage() {
         {!data && <p>Carregando...</p>}
         {data && (
           <>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginBottom: 24 }}>
+            <div className="stagger-fade" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginBottom: 24 }}>
               <StatTile label="Processos no escritório" value={data.processTotals.total} />
               <StatTile
                 label={`Parados há mais de ${data.processTotals.staleDaysThreshold} dias`}
@@ -122,17 +146,17 @@ export default function ExecutiveDashboardPage() {
               <StatTile label="Funcionários com acesso ao painel" value={data.team.length} />
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 24 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 20, marginBottom: 24 }}>
               <div className="card">
                 <h2 className="serif" style={{ fontSize: "1.05rem", marginBottom: 12 }}>Processos por status</h2>
                 {Object.entries(data.processTotals.byStatus).map(([status, count]) => (
-                  <BarRow key={status} label={statusLabel(status)} value={count} max={maxStatus} />
+                  <BarRow key={status} label={statusLabel(status)} value={count} max={maxStatus} animate={animateBars} />
                 ))}
               </div>
               <div className="card">
                 <h2 className="serif" style={{ fontSize: "1.05rem", marginBottom: 12 }}>Processos por área</h2>
                 {Object.entries(data.processTotals.byArea).map(([area, count]) => (
-                  <BarRow key={area} label={areaLabel(area)} value={count} max={maxArea} />
+                  <BarRow key={area} label={areaLabel(area)} value={count} max={maxArea} animate={animateBars} />
                 ))}
               </div>
             </div>
@@ -168,7 +192,7 @@ export default function ExecutiveDashboardPage() {
             </div>
 
             <h2 className="serif" style={{ marginBottom: 10 }}>Equipe com acesso ao painel interno</h2>
-            <div style={{ display: "grid", gap: 8 }}>
+            <div className="stagger-fade" style={{ display: "grid", gap: 8 }}>
               {data.team.map((member) => (
                 <div key={member.name} className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>

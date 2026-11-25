@@ -195,8 +195,9 @@ export default function ProcessPage() {
           ))}
         </div>
 
+        <div key={tab} className="fade-up">
         {tab === "timeline" && (
-          <div style={{ display: "grid", gap: 12 }}>
+          <div className="stagger-fade" style={{ display: "grid", gap: 12 }}>
             {process.timeline.map((event) => (
               <div key={event.id} className="card">
                 <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>{formatDatePtBR(event.date)}</p>
@@ -220,7 +221,7 @@ export default function ProcessPage() {
         )}
 
         {tab === "documentos" && (
-          <div style={{ display: "grid", gap: 8 }}>
+          <div className="stagger-fade" style={{ display: "grid", gap: 8 }}>
             {process.documents.length === 0 ? (
               <EmptyState
                 icon="📄"
@@ -239,7 +240,7 @@ export default function ProcessPage() {
         )}
 
         {tab === "financeiro" && (
-          <div style={{ display: "grid", gap: 8 }}>
+          <div className="stagger-fade" style={{ display: "grid", gap: 8 }}>
             {process.financial.length === 0 ? (
               <EmptyState
                 icon="💳"
@@ -262,6 +263,7 @@ export default function ProcessPage() {
             )}
           </div>
         )}
+        </div>
 
         <p style={{ marginTop: 32, fontSize: "0.8rem", textAlign: "center" }}>
           <Link href="/ajuda" style={{ color: "var(--text-muted)" }}>❓ Dúvidas sobre o que você está vendo aqui?</Link>

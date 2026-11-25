@@ -212,7 +212,7 @@ export default function AdminPage() {
             </div>
 
             <h2 className="serif">Satisfação consolidada por advogado</h2>
-            <div style={{ display: "grid", gap: 8 }}>
+            <div className="stagger-fade" style={{ display: "grid", gap: 8 }}>
               {data.satisfaction.map((s) => (
                 <div key={s.lawyerName} className="card" style={{ display: "flex", justifyContent: "space-between" }}>
                   <span>{s.lawyerName}</span>

@@ -19,6 +19,7 @@ export default function HelpPage() {
           Respostas rápidas pras dúvidas mais comuns sobre o portal. Toque numa pergunta pra ver a resposta.
         </p>
 
+        <div className="stagger-fade">
         <FaqItem question="O que significa 'Em andamento'?">
           Significa que seu processo ainda está sendo analisado pela Justiça — ninguém tomou uma
           decisão final ainda. É a situação mais comum, e não quer dizer que algo deu errado.
@@ -65,6 +66,7 @@ export default function HelpPage() {
           Sim. Tudo que você vê vem direto do sistema do escritório — ninguém precisa digitar ou
           atualizar nada manualmente pra você ver as novidades do seu processo.
         </FaqItem>
+        </div>
       </main>
     </div>
   );

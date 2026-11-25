@@ -29,17 +29,8 @@ export default function LoginPage() {
   }
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "linear-gradient(180deg, var(--ink) 0%, #0d1830 100%)",
-        padding: 24,
-      }}
-    >
-      <div className="card" style={{ maxWidth: 420, width: "100%" }}>
+    <main className="login-bg">
+      <div className="card fade-up" style={{ maxWidth: 420, width: "100%" }}>
         <div style={{ marginBottom: 20 }}>
           <Logo height={56} variant="full" />
         </div>

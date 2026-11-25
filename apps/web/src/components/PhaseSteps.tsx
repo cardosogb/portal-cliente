@@ -15,7 +15,7 @@ export function PhaseSteps({ currentPhase }: { currentPhase: string }) {
   if (currentIndex === -1) return null;
 
   return (
-    <div className="phase-steps" role="list" aria-label="Fases do processo">
+    <div className="phase-steps stagger-fade" role="list" aria-label="Fases do processo">
       {PHASE_ORDER.map((phase, i) => {
         const status = i < currentIndex ? "done" : i === currentIndex ? "current" : "";
         return (

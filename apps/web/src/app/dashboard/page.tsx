@@ -86,7 +86,7 @@ export default function DashboardPage() {
             description="Assim que o escritório vincular um processo ao seu cadastro, ele aparece aqui automaticamente — não precisa fazer nada."
           />
         )}
-        <div style={{ display: "grid", gap: 16, marginTop: 16 }}>
+        <div className="stagger-fade" style={{ display: "grid", gap: 16, marginTop: 16 }}>
           {processes?.map((p) => (
             <Link key={p.id} href={`/processes/${p.id}`} className="card" style={{ display: "block", textDecoration: "none" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: 8, flexWrap: "wrap" }}>
