@@ -16,6 +16,7 @@ import { getProcess, getSession } from "@/lib/api";
 import { Logo } from "@/components/Logo";
 import { PhaseSteps } from "@/components/PhaseSteps";
 import { EmptyState } from "@/components/EmptyState";
+import { HelpIcon } from "@/components/HelpIcon";
 import { Toast, useToast } from "@/components/Toast";
 
 type Tab = "timeline" | "documentos" | "financeiro";
@@ -268,7 +269,9 @@ export default function ProcessPage() {
         </div>
 
         <p style={{ marginTop: 32, fontSize: "0.8rem", textAlign: "center" }}>
-          <Link href="/ajuda" style={{ color: "var(--text-muted)" }}>❓ Dúvidas sobre o que você está vendo aqui?</Link>
+          <Link href="/ajuda" style={{ color: "var(--text-muted)", display: "inline-flex", alignItems: "center" }}>
+            <HelpIcon /> Dúvidas sobre o que você está vendo aqui?
+          </Link>
         </p>
       </main>
       <Toast message={toastMessage} />

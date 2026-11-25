@@ -9,6 +9,7 @@ import { getSession, listProcesses, logout as apiLogout } from "@/lib/api";
 import { Logo } from "@/components/Logo";
 import { CardSkeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
+import { HelpIcon } from "@/components/HelpIcon";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -48,8 +49,8 @@ export default function DashboardPage() {
       <main className="container">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
           <h1 className="serif" style={{ fontSize: "1.6rem", margin: 0 }}>Seus processos</h1>
-          <Link href="/ajuda" style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
-            ❓ Central de ajuda
+          <Link href="/ajuda" style={{ fontSize: "0.85rem", color: "var(--text-muted)", display: "inline-flex", alignItems: "center" }}>
+            <HelpIcon /> Central de ajuda
           </Link>
         </div>
         {error && (

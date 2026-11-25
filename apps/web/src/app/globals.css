@@ -438,10 +438,13 @@ a.card:focus-visible {
   font-weight: 600;
 }
 
-/* Em tela bem estreita, 6 nomes de fase espremidos ficam ilegíveis
-   (sobrepõem um no outro) — mostra só o nome da etapa atual; a fase já
-   aparece por extenso no texto acima da linha do tempo mesmo assim. */
-@media (max-width: 380px) {
+/* 6 nomes de fase não cabem lado a lado em tela de celular — mesmo em
+   telas "normais" (390-430px) os nomes grudam um no outro ou ficam
+   colados na borda. Mostra só o nome da etapa atual; a fase já aparece
+   por extenso no texto acima da linha do tempo mesmo assim. O corte em
+   560px é porque a barra (.phase-steps) tem max-width de 520px — abaixo
+   disso ela ocupa a largura toda do container e os rótulos não cabem. */
+@media (max-width: 560px) {
   .phase-step-label {
     display: none;
   }
