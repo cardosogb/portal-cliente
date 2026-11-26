@@ -36,10 +36,15 @@ function daysSinceLabel(days: number | null): string {
   return `há ${days} dias`;
 }
 
+// Com dados reais o escritório pode ter milhares de processos — sem
+// paginar, a tabela inteira (e a página) fica enorme e pesada de rolar.
+const PAGE_SIZE = 100;
+
 export default function AdminPage() {
   const router = useRouter();
   const [data, setData] = useState<AdminOverview | null>(null);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
   const [auditLog, setAuditLog] = useState<AuditEntry[] | null>(null);
   const [showAuditLog, setShowAuditLog] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
@@ -75,6 +80,19 @@ export default function AdminPage() {
       r.clientName.toLowerCase().includes(normalizedSearch) ||
       r.processNumber.toLowerCase().includes(normalizedSearch)
   );
+
+  const totalPages = Math.max(1, Math.ceil((filteredRows?.length ?? 0) / PAGE_SIZE));
+  // Se uma busca reduz o total de páginas, não deixa a página atual
+  // "sumir" num número que não existe mais.
+  const safePage = Math.min(page, totalPages);
+  const pagedRows = filteredRows?.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const rangeStart = filteredRows && filteredRows.length > 0 ? (safePage - 1) * PAGE_SIZE + 1 : 0;
+  const rangeEnd = filteredRows ? Math.min(safePage * PAGE_SIZE, filteredRows.length) : 0;
+
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    setPage(1);
+  }
 
   return (
     <div>
@@ -131,13 +149,13 @@ export default function AdminPage() {
                 type="text"
                 placeholder="Buscar por cliente ou número do processo..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
               />
               {search && (
                 <button
                   type="button"
                   className="admin-search-clear"
-                  onClick={() => setSearch("")}
+                  onClick={() => handleSearchChange("")}
                   aria-label="Limpar busca"
                 >
                   ✕
@@ -147,9 +165,22 @@ export default function AdminPage() {
 
             <div className="admin-search-meta">
               <span>
-                {search ? (
+                {filteredRows && filteredRows.length > 0 ? (
                   <>
-                    <strong>{filteredRows?.length ?? 0}</strong> de {data.rows.length} processos
+                    Mostrando <strong>{rangeStart}–{rangeEnd}</strong> de{" "}
+                    {search ? (
+                      <>
+                        <strong>{filteredRows.length}</strong> de {data.rows.length} processos
+                      </>
+                    ) : (
+                      <>
+                        <strong>{data.rows.length}</strong> processos
+                      </>
+                    )}
+                  </>
+                ) : search ? (
+                  <>
+                    <strong>0</strong> de {data.rows.length} processos
                   </>
                 ) : (
                   <>
@@ -172,8 +203,8 @@ export default function AdminPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredRows && filteredRows.length > 0 ? (
-                    filteredRows.map((r) => (
+                  {pagedRows && pagedRows.length > 0 ? (
+                    pagedRows.map((r) => (
                       <tr key={r.processNumber}>
                         <td>
                           <div className="admin-client-cell">
@@ -212,6 +243,32 @@ export default function AdminPage() {
               </table>
             </div>
             <p className="table-scroll-hint">→ Arraste a tabela para o lado para ver todas as colunas.</p>
+
+            {totalPages > 1 && (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, marginBottom: 24 }}>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={safePage <= 1}
+                  style={{ minHeight: 44 }}
+                >
+                  ← Anterior
+                </button>
+                <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
+                  Página {safePage} de {totalPages}
+                </span>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={safePage >= totalPages}
+                  style={{ minHeight: 44 }}
+                >
+                  Próxima →
+                </button>
+              </div>
+            )}
 
             <h2 className="serif">Satisfação consolidada por advogado</h2>
             <div className="stagger-fade" style={{ display: "grid", gap: 8 }}>

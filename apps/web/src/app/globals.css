@@ -103,6 +103,17 @@ a.card:focus-visible {
   background: var(--fog);
 }
 
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-secondary:disabled:hover {
+  border-color: var(--border);
+  background: transparent;
+}
+
 .btn-whatsapp {
   display: inline-flex;
   align-items: center;
