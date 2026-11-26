@@ -13,14 +13,8 @@ if errorlevel 1 (
   exit /b 1
 )
 
-where pnpm >nul 2>nul
-if errorlevel 1 (
-  echo Instalando o pnpm...
-  call corepack enable >nul 2>nul
-)
-
 echo Instalando dependencias ^(so demora na primeira vez^)...
-call pnpm install --filter @portal/api...
+call npx --yes pnpm install --filter @portal/api...
 if errorlevel 1 goto erro
 
 echo.
@@ -30,11 +24,12 @@ echo Pra PARAR: feche esta janela.
 echo.
 
 cd apps\api
-call pnpm exec tsx src\server.ts
+call npx --yes pnpm exec tsx src\server.ts
 exit /b 0
 
 :erro
 echo.
-echo Algo deu errado durante a instalacao. Veja a mensagem acima.
+echo Algo deu errado durante a instalacao. Veja a mensagem de erro ACIMA
+echo (role pra cima se precisar) e me mande ela.
 pause
 exit /b 1

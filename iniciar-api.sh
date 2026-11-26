@@ -14,13 +14,8 @@ if ! command -v node >/dev/null 2>&1; then
   exit 1
 fi
 
-if ! command -v pnpm >/dev/null 2>&1; then
-  echo "Instalando o pnpm..."
-  corepack enable >/dev/null 2>&1 || npm install -g pnpm
-fi
-
 echo "Instalando dependências (só demora na primeira vez)..."
-pnpm install --filter @portal/api...
+npx --yes pnpm install --filter @portal/api...
 
 echo
 echo "Iniciando a API na porta 4000..."
@@ -28,4 +23,4 @@ echo "Deixe esta janela aberta. Abra portal-visual.html no navegador em outra ja
 echo "Pra PARAR: aperte Ctrl+C aqui."
 echo
 
-cd apps/api && pnpm exec tsx src/server.ts
+cd apps/api && npx --yes pnpm exec tsx src/server.ts

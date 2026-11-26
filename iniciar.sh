@@ -13,29 +13,24 @@ if ! command -v node >/dev/null 2>&1; then
   exit 1
 fi
 
-if ! command -v pnpm >/dev/null 2>&1; then
-  echo "Instalando o pnpm..."
-  corepack enable >/dev/null 2>&1 || npm install -g pnpm
-fi
-
 echo "Instalando dependências (só demora na primeira vez)..."
-pnpm install --filter @portal/web... --filter @portal/api...
+npx --yes pnpm install --filter @portal/web... --filter @portal/api...
 
 export NEXT_PUBLIC_API_URL="http://localhost:4000"
 
 echo
 echo "Compilando o site..."
-pnpm --filter @portal/web build
+npx --yes pnpm --filter @portal/web build
 
 echo
 echo "Iniciando a API na porta 4000..."
-(cd apps/api && pnpm exec tsx src/server.ts) &
+(cd apps/api && npx --yes pnpm exec tsx src/server.ts) &
 API_PID=$!
 
 sleep 2
 
 echo "Iniciando o site na porta 3000..."
-(cd apps/web && NEXT_PUBLIC_API_URL="http://localhost:4000" pnpm start) &
+(cd apps/web && NEXT_PUBLIC_API_URL="http://localhost:4000" npx --yes pnpm start) &
 WEB_PID=$!
 
 sleep 3

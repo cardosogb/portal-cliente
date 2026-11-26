@@ -13,31 +13,25 @@ if errorlevel 1 (
   exit /b 1
 )
 
-where pnpm >nul 2>nul
-if errorlevel 1 (
-  echo Instalando o pnpm...
-  call corepack enable >nul 2>nul
-)
-
 echo Instalando dependencias ^(so demora na primeira vez^)...
-call pnpm install --filter @portal/web... --filter @portal/api...
+call npx --yes pnpm install --filter @portal/web... --filter @portal/api...
 if errorlevel 1 goto erro
 
 set NEXT_PUBLIC_API_URL=http://localhost:4000
 
 echo.
 echo Compilando o site...
-call pnpm --filter @portal/web build
+call npx --yes pnpm --filter @portal/web build
 if errorlevel 1 goto erro
 
 echo.
 echo Iniciando a API na porta 4000...
-start "Portal - API (nao feche)" cmd /k "cd /d "%~dp0apps\api" && pnpm exec tsx src\server.ts"
+start "Portal - API (nao feche)" cmd /k "cd /d "%~dp0apps\api" && npx --yes pnpm exec tsx src\server.ts"
 
 timeout /t 2 >nul
 
 echo Iniciando o site na porta 3000...
-start "Portal - Site (nao feche)" cmd /k "cd /d "%~dp0apps\web" && set NEXT_PUBLIC_API_URL=http://localhost:4000 && pnpm start"
+start "Portal - Site (nao feche)" cmd /k "cd /d "%~dp0apps\web" && set NEXT_PUBLIC_API_URL=http://localhost:4000 && npx --yes pnpm start"
 
 timeout /t 3 >nul
 start http://localhost:3000
