@@ -65,7 +65,41 @@ function token(): string {
 const getCache = new Map<string, { at: number; data: unknown }>();
 const CACHE_TTL_MS = 60_000;
 
-async function advboxGet<T>(path: string, params: Record<string, string | number | undefined> = {}): Promise<T | null> {
+/**
+ * Fila que espaça as chamadas pra nunca estourar os 30 GET/min do ADVBOX.
+ * Sem isso, uma sincronização em lote (ex.: `fetchAllPages` buscando 30
+ * páginas de uma vez) dispara tudo de uma vez e toma 429 rapidinho — foi
+ * isso que aconteceu e derrubou a API inteira na primeira tentativa, por
+ * um erro não tratado escapando de dentro de uma promise (ver também o
+ * middleware de erro em server.ts, que agora cobre isso como última
+ * linha de defesa).
+ */
+const MIN_INTERVAL_MS = 2_100; // ~28/min, com folga
+let queue: Promise<void> = Promise.resolve();
+let lastRequestAt = 0;
+
+function throttle<T>(fn: () => Promise<T>): Promise<T> {
+  const result = queue.then(async () => {
+    const wait = MIN_INTERVAL_MS - (Date.now() - lastRequestAt);
+    if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+    lastRequestAt = Date.now();
+    return fn();
+  });
+  // Mesmo se `fn()` rejeitar, a fila precisa seguir pra próxima chamada —
+  // por isso o catch aqui é só pra não travar `queue`, o erro de verdade
+  // continua propagando normalmente em `result` pra quem chamou.
+  queue = result.then(
+    () => undefined,
+    () => undefined
+  );
+  return result;
+}
+
+async function advboxGet<T>(
+  path: string,
+  params: Record<string, string | number | undefined> = {},
+  attempt = 0
+): Promise<T | null> {
   const url = new URL(BASE_URL + path);
   for (const [k, v] of Object.entries(params)) {
     if (v !== undefined && v !== null && v !== "") url.searchParams.set(k, String(v));
@@ -74,7 +108,14 @@ async function advboxGet<T>(path: string, params: Record<string, string | number
   const cached = getCache.get(cacheKey);
   if (cached && Date.now() - cached.at < CACHE_TTL_MS) return cached.data as T;
 
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${token()}` } });
+  const res = await throttle(() => fetch(url, { headers: { Authorization: `Bearer ${token()}` } }));
+
+  if (res.status === 429 && attempt < 3) {
+    const retryAfterHeader = res.headers.get("Retry-After");
+    const retryAfterMs = retryAfterHeader ? Number(retryAfterHeader) * 1000 : 5_000;
+    await new Promise((r) => setTimeout(r, retryAfterMs));
+    return advboxGet<T>(path, params, attempt + 1);
+  }
   if (res.status === 204 || res.status === 404) return null;
   if (!res.ok) {
     throw new Error(`ADVBOX respondeu ${res.status} em ${path}`);

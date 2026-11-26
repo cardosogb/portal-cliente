@@ -55,19 +55,35 @@ function mapLawsuitLight(l: AdvboxLawsuit, lastMovement: AdvboxMovement | undefi
   };
 }
 
+/**
+ * Nunca deixa um erro escapar daqui: isso roda tanto na primeira chamada
+ * (aguardada por quem pediu os dados) quanto em segundo plano, sem
+ * ninguém esperando (`getCachedProcesses` dispara e segue em frente). Se
+ * a segunda sincronização falhar (ex.: ADVBOX fora do ar por um
+ * instante) sem isso, vira um unhandled rejection que derruba a API
+ * inteira — mesmo bug que já aconteceu uma vez, só que fora do caminho
+ * que o `asyncHandler` das rotas consegue cobrir.
+ */
 async function runSync(): Promise<void> {
-  const [lawsuits, lastMovements] = await Promise.all([
-    fetchAllPages<AdvboxLawsuit>("/lawsuits", {}, 1000),
-    fetchAllPages<AdvboxMovement>("/last_movements", {}, 1000),
-  ]);
+  try {
+    const [lawsuits, lastMovements] = await Promise.all([
+      fetchAllPages<AdvboxLawsuit>("/lawsuits", {}, 1000),
+      fetchAllPages<AdvboxMovement>("/last_movements", {}, 1000),
+    ]);
 
-  const lastMovementByLawsuit = new Map<number, AdvboxMovement>();
-  for (const m of lastMovements) lastMovementByLawsuit.set(m.lawsuit_id, m);
+    const lastMovementByLawsuit = new Map<number, AdvboxMovement>();
+    for (const m of lastMovements) lastMovementByLawsuit.set(m.lawsuit_id, m);
 
-  cachedProcesses = lawsuits
-    .filter(isRealLawsuit)
-    .map((l) => mapLawsuitLight(l, lastMovementByLawsuit.get(l.id)));
-  lastSyncAt = Date.now();
+    cachedProcesses = lawsuits
+      .filter(isRealLawsuit)
+      .map((l) => mapLawsuitLight(l, lastMovementByLawsuit.get(l.id)));
+    lastSyncAt = Date.now();
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("[processesCache] sincronização com o ADVBOX falhou:", err);
+    // Mantém o cache anterior (mesmo vazio, na primeira vez) em vez de
+    // travar — a próxima chamada tenta de novo quando o TTL vencer.
+  }
 }
 
 /**

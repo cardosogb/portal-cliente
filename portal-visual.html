@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Portal do Cliente — visual (API real)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #12203d; --fog: #edeff2; --fog-2: #e2e5ea;
+    --brass: #ad8a3d; --brass-light: #c7a55c;
+    --wine: #8a3b3b; --wine-bg: #f6e6c8;
+    --forest: #3f6644; --forest-bg: #dcecdf;
+    --text: #1a2233; --text-muted: #5b6472; --white: #fff; --border: #d8dbe0;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fog); color: var(--text); font-family: 'Work Sans', sans-serif; }
+  h1, h2, h3, .serif { font-family: 'Fraunces', Georgia, serif; }
+  button { font-family: inherit; cursor: pointer; }
+  a { color: inherit; }
+  .hidden { display: none !important; }
+
+  #config-bar {
+    background: #fff8e8; border-bottom: 1px solid #e8c78a; padding: 8px 20px;
+    font-size: 0.8rem; color: #7a5a13; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  #config-bar input { font-size: 0.8rem; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); width: 220px; }
+  #config-bar button { font-size: 0.78rem; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: #fff; }
+
+  #login-screen {
+    min-height: calc(100vh - 40px);
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(1000px 500px at 15% -10%, rgba(173,138,61,0.18), transparent 60%),
+      linear-gradient(180deg, var(--ink) 0%, #0d1830 100%);
+    padding: 48px 20px;
+  }
+  .login-card { width: 100%; max-width: 400px; background: var(--white); border-radius: 16px; padding: 32px 28px; box-shadow: 0 30px 60px rgba(0,0,0,0.35); }
+  .field { display: block; margin-bottom: 14px; }
+  .field span { display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 5px; }
+  .field input { width: 100%; padding: 11px 13px; border-radius: 8px; border: 1px solid var(--border); background: var(--fog); font-size: 1rem; }
+  .btn-primary { background: var(--brass); color: #fff; border: none; border-radius: 8px; padding: 12px 18px; font-weight: 600; width: 100%; font-size: 0.95rem; }
+  .btn-primary:disabled { opacity: 0.6; }
+  .btn-secondary { background: transparent; border: 1px solid var(--border); border-radius: 8px; padding: 9px 14px; color: var(--text); font-size: 0.85rem; }
+
+  #app-shell { display: none; min-height: calc(100vh - 40px); flex-direction: column; }
+  #app-shell.active { display: flex; }
+  .top-nav { background: var(--ink); color: #fff; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .top-nav .brand { font-family: 'Fraunces', serif; font-size: 1.1rem; }
+  .nav-btn { background: transparent; border: 1px solid #3a4a6b; color: #fff; border-radius: 7px; padding: 7px 13px; font-size: 0.82rem; }
+  .back-link { color: #fff; text-decoration: none; font-size: 0.85rem; background: none; border: none; }
+
+  main { flex: 1; width: 100%; max-width: 880px; margin: 0 auto; padding: 22px 20px 60px; }
+  .card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 12px; }
+  a.card { text-decoration: none; display: block; }
+  a.card:hover { border-color: var(--brass); }
+  .pill { display: inline-block; padding: 4px 11px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+  .pill-action { background: var(--wine-bg); color: #7a5a13; }
+  .pill-ok { background: var(--forest-bg); color: var(--forest); }
+  .meta { margin: 0; font-size: 0.78rem; color: var(--text-muted); }
+  .tab-row { display: flex; gap: 8px; margin: 16px 0; flex-wrap: wrap; }
+  .tab-btn { border: 1px solid var(--border); background: var(--white); border-radius: 8px; padding: 8px 14px; font-size: 0.85rem; }
+  .tab-btn.active { background: var(--brass); border-color: var(--brass); color: #fff; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border); }
+  #error-banner { background: var(--wine-bg); color: #7a5a13; padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; font-size: 0.85rem; }
+  #loading-note { color: var(--text-muted); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+
+<div id="config-bar">
+  <span>API:</span>
+  <input id="api-url-input" value="http://localhost:4000" />
+  <button id="api-url-save">Usar esta API</button>
+  <span id="api-status" style="margin-left:auto;"></span>
+</div>
+
+<section id="login-screen">
+  <div class="login-card">
+    <h1 class="serif" style="margin:0 0 6px; font-size:1.5rem;">Portal do Cliente</h1>
+    <p style="margin:0 0 20px; color:var(--text-muted); font-size:0.9rem;">
+      Esta página não usa Node.js/React — é HTML e JavaScript puros, falando
+      direto com a API (que continua rodando em Node.js, separada).
+    </p>
+    <form id="login-form">
+      <label class="field">
+        <span>CPF (ou telefone, se for da equipe)</span>
+        <input id="cpf-input" type="text" inputmode="numeric" maxlength="11" required />
+      </label>
+      <label class="field">
+        <span>Data de nascimento (DDMM)</span>
+        <input id="birthdate-input" type="text" inputmode="numeric" maxlength="4" required />
+      </label>
+      <p id="login-error" class="hidden" style="color:var(--wine); font-size:0.85rem; margin:0 0 12px;"></p>
+      <button class="btn-primary" type="submit" id="login-submit">Entrar</button>
+    </form>
+  </div>
+</section>
+
+<div id="app-shell">
+  <nav class="top-nav">
+    <button class="back-link hidden" id="nav-back">← Voltar</button>
+    <span class="brand" id="nav-title">Portal do Cliente</span>
+    <button class="nav-btn" id="nav-logout">Sair</button>
+  </nav>
+  <main id="main-content"></main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var state = { apiUrl: localStorage.getItem("portal_api_url") || "http://localhost:4000", token: null, role: null, clientId: null, view: null, processId: null, tab: "timeline" };
+
+  var apiUrlInput = document.getElementById("api-url-input");
+  var apiStatus = document.getElementById("api-status");
+  apiUrlInput.value = state.apiUrl;
+
+  async function checkApiHealth() {
+    try {
+      var res = await fetch(state.apiUrl + "/health");
+      apiStatus.textContent = res.ok ? "✓ API respondendo" : "API respondeu com erro";
+      apiStatus.style.color = res.ok ? "var(--forest)" : "var(--wine)";
+    } catch (e) {
+      apiStatus.textContent = "✗ Não consegui falar com a API nesse endereço";
+      apiStatus.style.color = "var(--wine)";
+    }
+  }
+  document.getElementById("api-url-save").addEventListener("click", function () {
+    state.apiUrl = apiUrlInput.value.trim().replace(/\/$/, "");
+    localStorage.setItem("portal_api_url", state.apiUrl);
+    checkApiHealth();
+  });
+  checkApiHealth();
+
+  async function api(path, options) {
+    options = options || {};
+    var headers = Object.assign({ "Content-Type": "application/json" }, options.headers || {});
+    if (state.token) headers["Authorization"] = "Bearer " + state.token;
+    var res = await fetch(state.apiUrl + path, Object.assign({}, options, { headers: headers }));
+    var body = null;
+    try { body = await res.json(); } catch (e) {}
+    if (!res.ok) throw new Error((body && body.error) || ("Erro " + res.status));
+    return body;
+  }
+
+  var loginScreen = document.getElementById("login-screen");
+  var appShell = document.getElementById("app-shell");
+  var mainContent = document.getElementById("main-content");
+  var navBack = document.getElementById("nav-back");
+  var navTitle = document.getElementById("nav-title");
+  var loginError = document.getElementById("login-error");
+  var loginSubmit = document.getElementById("login-submit");
+
+  document.getElementById("login-form").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    loginError.classList.add("hidden");
+    loginSubmit.disabled = true;
+    loginSubmit.textContent = "Entrando…";
+    try {
+      var cpf = document.getElementById("cpf-input").value;
+      var birthDate = document.getElementById("birthdate-input").value;
+      var data = await api("/auth/login", { method: "POST", body: JSON.stringify({ cpf: cpf, birthDate: birthDate }) });
+      state.token = data.token;
+      state.role = data.role;
+      state.clientId = data.client ? data.client.id : null;
+      loginScreen.classList.add("hidden");
+      appShell.classList.add("active");
+      if (state.role === "escritorio") { state.view = "admin"; renderAdmin(); }
+      else { state.view = "dashboard"; renderDashboard(); }
+    } catch (err) {
+      loginError.textContent = "⚠️ " + err.message;
+      loginError.classList.remove("hidden");
+    } finally {
+      loginSubmit.disabled = false;
+      loginSubmit.textContent = "Entrar";
+    }
+  });
+
+  document.getElementById("nav-logout").addEventListener("click", async function () {
+    try { await api("/auth/logout", { method: "POST" }); } catch (e) {}
+    state.token = null; state.role = null; state.clientId = null;
+    appShell.classList.remove("active");
+    loginScreen.classList.remove("hidden");
+  });
+
+  navBack.addEventListener("click", function () {
+    if (state.role === "escritorio") { state.view = "admin"; renderAdmin(); }
+    else { state.view = "dashboard"; renderDashboard(); }
+  });
+
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    attrs = attrs || {};
+    for (var k in attrs) {
+      if (k === "class") node.className = attrs[k];
+      else if (k === "text") node.textContent = attrs[k];
+      else node.setAttribute(k, attrs[k]);
+    }
+    (children || []).forEach(function (c) { if (c) node.appendChild(c); });
+    return node;
+  }
+  function text(tag, cls, content) { var n = el(tag, cls ? { class: cls } : {}); n.textContent = content; return n; }
+  function fmtDate(iso) {
+    if (!iso) return "—";
+    var d = new Date(iso + "T00:00:00");
+    if (isNaN(d.getTime())) return iso;
+    return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
+  }
+  function fmtBRL(cents) { return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }); }
+  function errorBanner(message) { return el("div", { id: "error-banner" }, [document.createTextNode("⚠️ " + message)]); }
+  function loadingNote(label) { return text("p", "", label); }
+
+  async function renderDashboard() {
+    navBack.classList.add("hidden");
+    navTitle.textContent = "Seus processos";
+    mainContent.innerHTML = "";
+    mainContent.appendChild(loadingNote("Carregando seus processos…"));
+    try {
+      var data = await api("/processes");
+      mainContent.innerHTML = "";
+      mainContent.appendChild(text("h1", "serif", "Seus processos"));
+      if (!data.processes.length) {
+        mainContent.appendChild(text("p", "meta", "Nenhum processo vinculado ainda."));
+        return;
+      }
+      data.processes.forEach(function (p) {
+        var card = el("a", { class: "card", href: "javascript:void(0)" }, [
+          text("p", "meta", p.area + " · " + p.court),
+          text("h3", "serif", "Processo nº " + p.number),
+          text("p", "", (p.status === "concluido" ? "Concluído" : "Em andamento") + " — " + p.currentPhase),
+          el("span", { class: "pill " + (p.nextAction.type === "acao" ? "pill-action" : "pill-ok") }, [document.createTextNode(p.nextAction.type === "acao" ? "Ação necessária" : "Em dia")])
+        ]);
+        card.addEventListener("click", function () { state.processId = p.id; state.tab = "timeline"; renderProcess(); });
+        mainContent.appendChild(card);
+      });
+    } catch (err) {
+      mainContent.innerHTML = "";
+      mainContent.appendChild(errorBanner(err.message));
+    }
+  }
+
+  async function renderProcess() {
+    navBack.classList.remove("hidden");
+    mainContent.innerHTML = "";
+    mainContent.appendChild(loadingNote("Carregando processo…"));
+    try {
+      var data = await api("/processes/" + state.processId);
+      var p = data.process;
+      navTitle.textContent = "Processo nº " + p.number;
+      mainContent.innerHTML = "";
+      mainContent.appendChild(text("p", "meta", p.area + " · " + p.court));
+      mainContent.appendChild(text("h1", "serif", "Processo nº " + p.number));
+      mainContent.appendChild(text("p", "", "Fase atual: " + p.currentPhase + " · Status: " + (p.status === "concluido" ? "Concluído" : "Em andamento")));
+
+      var banner = el("div", { class: "card" }, [
+        text("p", "", p.nextAction.text),
+        text("p", "meta", p.forecast)
+      ]);
+      mainContent.appendChild(banner);
+
+      var tabs = [["timeline", "Linha do tempo"], ["documentos", "Documentos"], ["financeiro", "Financeiro"]];
+      var tabRow = el("div", { class: "tab-row" });
+      tabs.forEach(function (t) {
+        var btn = text("button", "tab-btn" + (state.tab === t[0] ? " active" : ""), t[1]);
+        btn.addEventListener("click", function () { state.tab = t[0]; renderProcessTab(p); });
+        tabRow.appendChild(btn);
+      });
+      mainContent.appendChild(tabRow);
+      mainContent.appendChild(el("div", { id: "tab-content" }));
+      renderProcessTab(p);
+    } catch (err) {
+      mainContent.innerHTML = "";
+      mainContent.appendChild(errorBanner(err.message));
+    }
+  }
+
+  function renderProcessTab(p) {
+    var container = document.getElementById("tab-content");
+    container.innerHTML = "";
+    if (state.tab === "timeline") {
+      if (!p.timeline.length) { container.appendChild(text("p", "meta", "Sem movimentações registradas.")); return; }
+      p.timeline.forEach(function (ev) {
+        container.appendChild(el("div", { class: "card" }, [
+          text("p", "meta", fmtDate(ev.date)),
+          text("p", "", ev.plainText),
+          text("p", "meta", ev.explanation)
+        ]));
+      });
+    } else if (state.tab === "documentos") {
+      if (!p.documents.length) { container.appendChild(text("p", "meta", "Nenhum documento disponível.")); return; }
+      p.documents.forEach(function (d) {
+        var row = el("div", { class: "card" }, [
+          text("p", "", d.title),
+          text("p", "meta", fmtDate(d.uploadedAt) + " · " + d.sizeKb + " KB")
+        ]);
+        var link = text("a", "", "Baixar");
+        link.href = state.apiUrl + "/processes/" + p.id + "/documents/" + d.id + "/download?token=" + encodeURIComponent(state.token);
+        link.target = "_blank";
+        row.appendChild(link);
+        container.appendChild(row);
+      });
+    } else {
+      if (!p.financial.length) { container.appendChild(text("p", "meta", "Nenhuma movimentação financeira.")); return; }
+      p.financial.forEach(function (f) {
+        container.appendChild(el("div", { class: "card" }, [
+          text("p", "", f.description),
+          text("p", "meta", "Vencimento: " + fmtDate(f.dueDate) + " · " + fmtBRL(f.amountCents) + " · " + f.status)
+        ]));
+      });
+    }
+  }
+
+  async function renderAdmin() {
+    navBack.classList.add("hidden");
+    navTitle.textContent = "Painel interno";
+    mainContent.innerHTML = "";
+    mainContent.appendChild(loadingNote("Carregando visão do escritório… (pode demorar na primeira sincronização)"));
+    try {
+      var data = await api("/admin/overview");
+      mainContent.innerHTML = "";
+      mainContent.appendChild(text("h1", "serif", "Painel interno"));
+      mainContent.appendChild(text("p", "meta", data.rows.length + " processo(s) · " + data.staleProcessesCount + " parado(s) há mais de " + data.staleDaysThreshold + " dias"));
+      var table = el("table");
+      table.appendChild(el("tr", {}, ["Cliente", "Processo", "Advogado", "Status"].map(function (h) { return el("th", { text: h }); })));
+      data.rows.slice(0, 50).forEach(function (r) {
+        table.appendChild(el("tr", {}, [
+          el("td", { text: r.clientName }),
+          el("td", { text: r.processNumber }),
+          el("td", { text: r.lawyerName }),
+          el("td", { text: r.status })
+        ]));
+      });
+      mainContent.appendChild(table);
+      if (data.rows.length > 50) mainContent.appendChild(text("p", "meta", "Mostrando os primeiros 50 de " + data.rows.length + "."));
+    } catch (err) {
+      mainContent.innerHTML = "";
+      mainContent.appendChild(errorBanner(err.message));
+    }
+  }
+})();
+</script>
+</body>
+</html>

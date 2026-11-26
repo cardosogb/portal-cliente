@@ -2,6 +2,7 @@ import "dotenv/config";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
+import type { NextFunction, Request, Response } from "express";
 import helmet from "helmet";
 import { authRouter } from "./routes/auth";
 import { processesRouter } from "./routes/processes";
@@ -9,6 +10,18 @@ import { adminRouter } from "./routes/admin";
 import { assertProductionSecrets } from "./auth";
 
 assertProductionSecrets();
+
+/**
+ * Última rede de segurança: um erro fora do ciclo de uma requisição (ex.:
+ * um timer solto) também derruba o processo por padrão no Node. Só loga —
+ * não tenta "continuar como se nada tivesse acontecido" de verdade, mas
+ * pelo menos a API não cai inteira por causa de uma chamada ao ADVBOX que
+ * falhou num lugar que nenhum try/catch cobria.
+ */
+process.on("unhandledRejection", (err) => {
+  // eslint-disable-next-line no-console
+  console.error("[api] unhandled rejection:", err);
+});
 
 const app = express();
 
@@ -80,6 +93,22 @@ app.get("/.well-known/security.txt", (_req, res) => {
 app.use("/auth", authRouter);
 app.use("/processes", processesRouter);
 app.use("/admin", adminRouter);
+
+/**
+ * Rede de segurança: sem isso, um erro não tratado escapando de uma rota
+ * (ex.: a API do ADVBOX fora do ar, ou um 429 que sobrou depois das
+ * tentativas em advboxRealClient.ts) vira um unhandled rejection e, por
+ * padrão no Node, derruba a API inteira — foi o que aconteceu na primeira
+ * sincronização de processos. Precisa vir depois de todas as rotas e ter
+ * 4 parâmetros (é assim que o Express reconhece um error handler).
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  // eslint-disable-next-line no-console
+  console.error("[api] erro não tratado:", err);
+  if (res.headersSent) return;
+  res.status(500).json({ error: "Erro interno. Tente novamente em instantes." });
+});
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 4000;
 app.listen(PORT, () => {

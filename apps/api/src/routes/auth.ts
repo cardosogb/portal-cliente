@@ -15,6 +15,7 @@ import {
 import { revokeSession } from "../sessionStore";
 import { msUntilUnlocked, registerFailure, registerSuccess } from "../loginLockout";
 import { validateBody } from "../middleware/validate";
+import { asyncHandler } from "../middleware/asyncHandler";
 
 export const authRouter = Router();
 
@@ -46,7 +47,7 @@ const loginSchema = z.object({
 // a partir do painel (é só leitura) — então não há um token CSRF separado
 // por enquanto. Se uma rota que grava dados for adicionada, ela precisa
 // desse reforço.
-authRouter.post("/login", loginRateLimit, validateBody(loginSchema), async (req, res) => {
+authRouter.post("/login", loginRateLimit, validateBody(loginSchema), asyncHandler(async (req, res) => {
   const { cpf, birthDate } = req.body as z.infer<typeof loginSchema>;
 
   const lockedMs = msUntilUnlocked(cpf);
@@ -93,7 +94,7 @@ authRouter.post("/login", loginRateLimit, validateBody(loginSchema), async (req,
   const { token } = signSession({ role: "cliente", clientId: client.id });
   res.cookie(SESSION_COOKIE, token, sessionCookieOptions());
   return res.json({ token, role: "cliente", client });
-});
+}));
 
 /**
  * O site não guarda mais o papel (cliente/equipe) em `localStorage` — o

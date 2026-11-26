@@ -5,6 +5,7 @@ import { daysSinceLastMovement, isStale, STALE_DAYS_THRESHOLD } from "../integra
 import { mockClients, mockSatisfaction, mockStaffUsers } from "@portal/shared";
 import { requireAccessLevel, requireAuth, requireRole, type AuthedRequest } from "../auth";
 import { getRecentAccess, recordAccess } from "../auditLog";
+import { asyncHandler } from "../middleware/asyncHandler";
 
 export const adminRouter = Router();
 
@@ -24,7 +25,7 @@ adminRouter.get("/audit-log", (_req, res) => {
   return res.json({ entries: getRecentAccess() });
 });
 
-adminRouter.get("/overview", async (_req, res) => {
+adminRouter.get("/overview", asyncHandler(async (_req, res) => {
   const processes = await advboxClient.listAllProcesses();
 
   const rows = processes
@@ -51,7 +52,7 @@ adminRouter.get("/overview", async (_req, res) => {
     rows,
     satisfaction: mockSatisfaction,
   });
-});
+}));
 
 /**
  * Dashboard de desenvolvimento do escritório: visão agregada de equipe e
@@ -60,7 +61,7 @@ adminRouter.get("/overview", async (_req, res) => {
  * trava extra de `requireAccessLevel("executivo")`, além de já exigir ser
  * da equipe.
  */
-adminRouter.get("/executive-overview", requireAccessLevel("executivo"), async (_req, res) => {
+adminRouter.get("/executive-overview", requireAccessLevel("executivo"), asyncHandler(async (_req, res) => {
   const processes = await advboxClient.listAllProcesses();
 
   const byStatus: Record<string, number> = {};
@@ -105,4 +106,4 @@ adminRouter.get("/executive-overview", requireAccessLevel("executivo"), async (_
     staffPerformance,
     team,
   });
-});
+}));
