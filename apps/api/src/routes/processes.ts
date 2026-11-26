@@ -27,13 +27,29 @@ const processIdParams = z.object({
   id: z.string().min(1, "Identificador de processo inválido."),
 });
 
+/**
+ * O cliente só pode ver o próprio processo (checagem de `clientId`); a
+ * equipe do escritório pode ver qualquer um — ela já enxerga todos os
+ * processos de forma agregada em `/admin/overview`, então ver o detalhe
+ * de um processo específico (linha do tempo, documentos, financeiro) não
+ * é uma informação nova pra ela, só a mesma visão que o cliente tem do
+ * próprio caso. Concedido por papel (`role === "escritorio"`), não para
+ * uma pessoa específica — qualquer conta de equipe legítima tem isso,
+ * igual já acontece com o painel interno.
+ */
+function canViewProcess(process: { clientId: string }, session: AuthedRequest["session"]): boolean {
+  if (!session) return false;
+  if (session.role === "escritorio") return true;
+  return process.clientId === session.clientId;
+}
+
 processesRouter.get(
   "/:id",
   requireAuth,
   validateParams(processIdParams),
   asyncHandler(async (req: AuthedRequest, res) => {
     const process = await advboxClient.getProcess(req.params.id);
-    if (!process || process.clientId !== req.session?.clientId) {
+    if (!process || !canViewProcess(process, req.session)) {
       return res.status(404).json({ error: "Processo não encontrado." });
     }
     return res.json({ process });
@@ -67,7 +83,7 @@ processesRouter.get(
   validateParams(documentDownloadParams),
   asyncHandler(async (req: AuthedRequest, res) => {
     const process = await advboxClient.getProcess(req.params.id);
-    if (!process || process.clientId !== req.session?.clientId) {
+    if (!process || !canViewProcess(process, req.session)) {
       return res.status(404).json({ error: "Processo não encontrado." });
     }
     const belongsToProcess = process.documents.some((d) => d.id === req.params.docId);
