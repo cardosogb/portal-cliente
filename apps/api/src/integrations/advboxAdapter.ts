@@ -34,6 +34,7 @@ import {
   type Client,
   type LegalProcess,
 } from "@portal/shared";
+import { realAdvboxClient } from "./advboxRealClient";
 
 export interface AdvboxClient {
   listClients(): Promise<Client[]>;
@@ -41,6 +42,13 @@ export interface AdvboxClient {
   listProcessesByClient(clientId: string): Promise<LegalProcess[]>;
   getProcess(processId: string): Promise<LegalProcess | null>;
   listAllProcesses(): Promise<LegalProcess[]>;
+  /**
+   * URL de download de um documento específico de um processo. Só a
+   * implementação real precisa fazer algo aqui — o ADVBOX devolve uma URL
+   * assinada que expira em 5 minutos, então ela é buscada na hora do
+   * clique (ver routes/processes.ts), nunca guardada de antemão.
+   */
+  getDocumentDownloadUrl(documentId: string): Promise<string | null>;
 }
 
 class MockAdvboxClient implements AdvboxClient {
@@ -66,6 +74,21 @@ class MockAdvboxClient implements AdvboxClient {
   async listAllProcesses(): Promise<LegalProcess[]> {
     return mockProcesses;
   }
+
+  async getDocumentDownloadUrl(documentId: string): Promise<string | null> {
+    const doc = mockProcesses.flatMap((p) => p.documents).find((d) => d.id === documentId);
+    return doc?.url ?? null;
+  }
 }
 
-export const advboxClient: AdvboxClient = new MockAdvboxClient();
+/**
+ * Com `ADVBOX_API_TOKEN` definido (ver apps/api/.env), usa a API real do
+ * ADVBOX; sem ele, continua com dados mockados — nenhum outro código da
+ * aplicação precisa saber a diferença. Importar `advboxRealClient` não
+ * faz nenhuma chamada de rede por si só (só quando um método é chamado),
+ * então não há problema em importar o módulo mesmo quando não vai ser
+ * usado.
+ */
+export const advboxClient: AdvboxClient = process.env.ADVBOX_API_TOKEN
+  ? realAdvboxClient
+  : new MockAdvboxClient();

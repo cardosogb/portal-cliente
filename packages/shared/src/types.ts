@@ -92,6 +92,14 @@ export interface FinancialInstallment {
 export interface LegalProcess {
   id: string;
   clientId: string;
+  /**
+   * Nome do cliente, só preenchido pela integração real do ADVBOX (o
+   * painel interno hoje descobre o nome via `mockClients` pelo `clientId`
+   * nos dados de demonstração — com dados reais, `clientId` é um ID
+   * numérico do ADVBOX que não existe em `mockClients`, então o nome
+   * precisa vir embutido aqui mesmo).
+   */
+  clientName?: string;
   number: string;
   area: ProcessArea;
   court: string;

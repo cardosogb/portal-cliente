@@ -31,7 +31,7 @@ adminRouter.get("/overview", async (_req, res) => {
     .map((p) => {
       const client = mockClients.find((c) => c.id === p.clientId);
       return {
-        clientName: client?.name ?? "—",
+        clientName: p.clientName ?? client?.name ?? "—",
         processNumber: p.number,
         lawyerName: p.lawyerName,
         lastAccessAt: client?.lastAccessAt ?? null,

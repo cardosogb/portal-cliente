@@ -53,6 +53,12 @@ const PATTERNS: Array<{ match: RegExp; plain: string; explanation: string }> = [
     explanation:
       "Seu advogado protocolou um novo documento ou manifestação no processo, dando andamento ao seu caso. Você não precisa fazer nada agora.",
   },
+  {
+    match: /tr[aâ]nsito em julgado|baixa definitiva/i,
+    plain: "Seu processo foi encerrado definitivamente.",
+    explanation:
+      "A decisão não pode mais ser contestada por nenhuma das partes — o processo está oficialmente encerrado. Se houver algum valor a receber ou providência final, seu advogado vai entrar em contato.",
+  },
 ];
 
 const DEFAULT_PLAIN = "Houve uma nova movimentação no seu processo.";
