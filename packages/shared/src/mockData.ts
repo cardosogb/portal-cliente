@@ -71,6 +71,17 @@ export const mockStaffUsers: StaffUser[] = [
     email: "fernando@fernandomiranda.adv.br",
     accessLevel: "executivo",
   },
+  {
+    id: "staff_gabriel",
+    name: "Gabriel Cardoso",
+    title: "Proprietário e Analista",
+    cpf: "171.641.587-03",
+    phone: "",
+    // Só o dia/mês (18/10) importa pro login — ano é só um valor plausível.
+    birthDate: "1995-10-18",
+    email: "",
+    accessLevel: "executivo",
+  },
 ];
 
 export const mockProcesses: LegalProcess[] = [
