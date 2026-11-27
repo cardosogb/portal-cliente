@@ -28,9 +28,20 @@ no terminal. No iPhone, abra a câmera (ou o próprio Expo Go) e aponte pro QR c
 ele abre o app.
 
 ## Se o QR code não conectar
+- **"Could not connect to the server" / o terminal mostra `exp://127.0.0.1:8081`**
+  (em vez de um IP tipo `192.168.X.X`): o script já corrige isso forçando o IP
+  certo, mas se ainda acontecer, descubra o IP manualmente (`ipconfig` no
+  Windows, no bloco "Adaptador de Rede sem Fio Wi-Fi"; `ifconfig`/`ipconfig
+  getifaddr en0` no Mac) e rode assim:
+  - Windows: `set LAN_IP=SEU_IP_AQUI && iniciar-mobile.bat`
+  - Mac/Linux: `LAN_IP=SEU_IP_AQUI ./iniciar-mobile.sh`
 - Confirme que os dois estão na mesma rede Wi-Fi (não 4G/5G no celular).
-- Firewall do computador pode estar bloqueando — libere a porta 8081 (Metro) e
-  4000 (API) na rede local, ou desative o firewall temporariamente pra testar.
+- Firewall do computador pode estar bloqueando — libere o **Node.js** nos
+  perfis "Privada" e "Pública" (Windows Defender Firewall → "Permitir um
+  aplicativo pelo firewall"), ou libere as portas 8081 (Metro) e 4000 (API).
+- Rede Wi-Fi com "isolamento de cliente" (comum em Wi-Fi de convidado, redes
+  corporativas e alguns roteadores mesh) impede os aparelhos de se verem
+  mesmo na mesma rede — tente outra rede Wi-Fi (ex.: a de casa) se puder.
 - Em vez de escanear, você pode digitar a URL que aparece no terminal
   (algo como `exp://192.168.X.X:8081`) direto no Expo Go.
 

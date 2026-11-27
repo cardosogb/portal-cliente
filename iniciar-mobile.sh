@@ -17,8 +17,8 @@ fi
 # Descobre o IP desta máquina na rede local, pra o celular conseguir
 # chamar a API — "localhost" no celular aponta pro próprio celular, não
 # pra este computador.
-LAN_IP=""
-if command -v ipconfig >/dev/null 2>&1; then
+LAN_IP="${LAN_IP:-}"
+if [ -z "$LAN_IP" ] && command -v ipconfig >/dev/null 2>&1; then
   LAN_IP=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || true)
 fi
 if [ -z "$LAN_IP" ] && command -v hostname >/dev/null 2>&1; then
@@ -27,12 +27,13 @@ fi
 if [ -z "$LAN_IP" ]; then
   echo "Não consegui descobrir o IP desta máquina na rede automaticamente."
   echo "Rode 'ifconfig' (Mac/Linux) e procure o IP da sua rede Wi-Fi (geralmente 192.168.x.x),"
-  echo "depois rode:  EXPO_PUBLIC_API_URL=http://SEU_IP:4000 ./iniciar-mobile.sh"
+  echo "depois rode:  LAN_IP=SEU_IP ./iniciar-mobile.sh"
   exit 1
 fi
 
 echo "IP desta máquina na rede: $LAN_IP"
-echo "(confira que seu iPhone/Android está na MESMA rede Wi-Fi)"
+echo "Confira que esse é o IP da sua rede Wi-Fi mesmo (não de VPN/adaptador virtual)."
+echo "Confira também que seu iPhone/Android está na MESMA rede Wi-Fi."
 echo
 
 echo "Instalando dependências (só demora na primeira vez)..."
@@ -54,4 +55,4 @@ echo " (Android: o próprio app Expo Go tem um leitor de QR code.)"
 echo "=================================================="
 echo
 
-cd apps/mobile && EXPO_PUBLIC_API_URL="http://$LAN_IP:4000" npx --yes expo start
+cd apps/mobile && EXPO_PUBLIC_API_URL="http://$LAN_IP:4000" REACT_NATIVE_PACKAGER_HOSTNAME="$LAN_IP" npx --yes expo start

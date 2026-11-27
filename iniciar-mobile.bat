@@ -13,22 +13,32 @@ if errorlevel 1 (
   exit /b 1
 )
 
-set LAN_IP=
-for /f "tokens=2 delims=:" %%a in ('ipconfig ^| findstr /c:"IPv4"') do (
-  if not defined LAN_IP set LAN_IP=%%a
+rem Prioriza o adaptador de Wi-Fi via PowerShell (mais confiavel que ler o
+rem texto do "ipconfig" quando existe VPN/adaptador virtual na maquina,
+rem que senao pode ser escolhido no lugar do Wi-Fi de verdade). Se LAN_IP
+rem ja foi definido manualmente antes de rodar este script, respeita isso
+rem e nao tenta detectar sozinho.
+if defined LAN_IP goto ip_pronto
+for /f "delims=" %%i in ('powershell -NoProfile -Command "(Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { $_.InterfaceAlias -match 'Wi-?Fi' -and $_.IPAddress -notlike '169.254.*' } | Select-Object -First 1 -ExpandProperty IPAddress)"') do set LAN_IP=%%i
+
+if not defined LAN_IP (
+  for /f "delims=" %%i in ('powershell -NoProfile -Command "(Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { $_.IPAddress -notlike '169.254.*' -and $_.IPAddress -ne '127.0.0.1' } | Select-Object -First 1 -ExpandProperty IPAddress)"') do set LAN_IP=%%i
 )
-set LAN_IP=%LAN_IP: =%
 
 if not defined LAN_IP (
   echo Nao consegui descobrir o IP desta maquina na rede automaticamente.
-  echo Rode "ipconfig", procure o "Endereco IPv4" da sua rede Wi-Fi ^(geralmente 192.168.x.x^)
-  echo e defina a variavel EXPO_PUBLIC_API_URL antes de rodar este script.
+  echo Rode "ipconfig", procure o "Endereco IPv4" da sua rede Wi-Fi ^(geralmente 192.168.x.x,
+  echo no bloco "Adaptador de Rede sem Fio Wi-Fi"^) e rode de novo assim:
+  echo   set LAN_IP=SEU_IP_AQUI ^&^& iniciar-mobile.bat
   pause
   exit /b 1
 )
 
+:ip_pronto
 echo IP desta maquina na rede: %LAN_IP%
-echo (confira que seu iPhone/Android esta na MESMA rede Wi-Fi)
+echo Confira que esse e o IP da sua rede Wi-Fi mesmo ^(rode "ipconfig" e compare
+echo com o "Endereco IPv4" do bloco "Adaptador de Rede sem Fio Wi-Fi"^).
+echo Confira tambem que seu iPhone/Android esta na MESMA rede Wi-Fi.
 echo.
 
 echo Instalando dependencias ^(so demora na primeira vez^)...
@@ -51,6 +61,10 @@ echo.
 
 cd apps\mobile
 set EXPO_PUBLIC_API_URL=http://%LAN_IP%:4000
+rem Sem isso, o Expo as vezes anuncia "127.0.0.1" no QR code em vez do IP
+rem da rede (o celular nao alcanca "127.0.0.1" dele mesmo) — foi
+rem exatamente esse o problema visto no "Metro waiting on exp://127.0.0.1:8081".
+set REACT_NATIVE_PACKAGER_HOSTNAME=%LAN_IP%
 call npx --yes expo start
 exit /b 0
 
