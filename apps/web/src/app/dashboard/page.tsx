@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { LegalProcess } from "@portal/shared";
-import { areaLabel, statusLabel } from "@portal/shared";
+import { areaLabel, statusLabel, nextActionLabel } from "@portal/shared";
 import { getSession, listProcesses, logout as apiLogout } from "@/lib/api";
 import { Logo } from "@/components/Logo";
 import { CardSkeleton } from "@/components/Skeleton";
@@ -101,8 +101,16 @@ export default function DashboardPage() {
                   </h2>
                   <p style={{ margin: 0, fontSize: "0.9rem" }}>{statusLabel(p.status)} — {p.currentPhase}</p>
                 </div>
-                <span className={p.nextAction.type === "acao" ? "pill pill-action" : "pill pill-ok"}>
-                  {p.nextAction.type === "acao" ? "Ação necessária" : "Em dia"}
+                <span
+                  className={
+                    p.nextAction.type === "acao"
+                      ? "pill pill-action"
+                      : p.nextAction.type === "aviso"
+                        ? "pill pill-neutral"
+                        : "pill pill-ok"
+                  }
+                >
+                  {nextActionLabel(p.nextAction.type)}
                 </span>
               </div>
             </Link>

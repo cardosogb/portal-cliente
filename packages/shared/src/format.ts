@@ -5,6 +5,13 @@ export function formatBRL(cents: number): string {
   });
 }
 
+/** Rótulo curto pro pill de status de um processo, usado no dashboard. */
+export function nextActionLabel(type: "acao" | "ok" | "aviso"): string {
+  if (type === "acao") return "Ação necessária";
+  if (type === "aviso") return "Agenda";
+  return "Em dia";
+}
+
 export function formatDatePtBR(iso: string): string {
   return new Date(iso).toLocaleDateString("pt-BR", {
     day: "2-digit",

@@ -38,6 +38,7 @@
 import {
   onlyDigits,
   birthDateToDDMM,
+  formatDatePtBR,
   type Client,
   type LegalProcess,
   type ProcessArea,
@@ -183,6 +184,14 @@ interface AdvboxDocument {
   uploaded_at: string;
 }
 
+interface AdvboxTask {
+  id: number;
+  date: string | null; // "AAAA-MM-DD HH:MM:SS"
+  task: string; // nome do tipo de tarefa (ver CLIENT_FACING_TASK_LABELS)
+  local: string | null;
+  lawsuits_id: number | null;
+}
+
 // ---- Mapeamentos ----
 
 const AREA_BY_GROUP: Record<string, ProcessArea> = {
@@ -238,6 +247,48 @@ async function fetchMovements(lawsuitId: number): Promise<AdvboxMovement[]> {
   return fetchAllPages<AdvboxMovement>(`/movements/${lawsuitId}`, {}, 200);
 }
 
+/**
+ * Tipos de tarefa do ADVBOX (`/posts`, campo `task`) que são um
+ * compromisso real do cliente — audiência, perícia, sessão de
+ * julgamento — e não tarefa interna da equipe. A conta do escritório tem
+ * ~300 tipos de tarefa cadastrados em `/settings`, a imensa maioria de
+ * fluxo de trabalho interno (cobrança, RH, atendimento, "CORREÇÃO DE
+ * PEÇAS", etc.), e o campo `notes` de uma tarefa real costuma trazer
+ * instruções internas da equipe e até dados de contato do cliente — por
+ * isso isto é uma lista fechada do que é seguro mostrar (allow-list), ao
+ * contrário do filtro de andamentos em `legalTranslator.ts` (que é um
+ * block-list), e por isso nunca usamos `notes`, só o nome do tipo, a data
+ * e o local.
+ *
+ * Lista fechada por enquanto — se o escritório tiver outro tipo de
+ * compromisso que devesse aparecer aqui, é só adicionar nesta lista.
+ */
+const CLIENT_FACING_TASK_LABELS: Record<string, string> = {
+  "AUDIÊNCIA DE CONCILIAÇÃO": "Audiência de conciliação",
+  "AUDIÊNCIA DE INSTRUÇÃO/JULGAMENTO": "Audiência de instrução e julgamento",
+  "AUDIÊNCIAS": "Audiência",
+  "AGENDAMENTO DE PERICIA": "Perícia",
+  "AGENDAMENTO DE AVALIAÇÃO SOCIAL": "Avaliação social",
+  "SESSÃO ORDINÁRIA DE JULGAMENTO AGENDADA": "Sessão de julgamento",
+  "SUSTENTAÇÃO ORAL TRT TRF TJ": "Sustentação oral",
+  "SUSTENTAÇÃO ORAL TST STJ STF": "Sustentação oral",
+};
+
+/**
+ * Busca, entre as tarefas pendentes do processo, o próximo compromisso
+ * real do cliente (ver `CLIENT_FACING_TASK_LABELS`) com data futura. Só
+ * uma: o cliente precisa saber "qual é a próxima coisa", não a lista
+ * inteira de tarefas internas da equipe.
+ */
+async function fetchNextClientAppointment(lawsuitId: number): Promise<AdvboxTask | null> {
+  const tasks = await fetchAllPages<AdvboxTask>("/posts", { lawsuit_id: lawsuitId }, 200);
+  const todayStart = new Date().toISOString().slice(0, 10);
+  const upcoming = tasks
+    .filter((t) => t.task in CLIENT_FACING_TASK_LABELS && t.date && t.date.slice(0, 10) >= todayStart)
+    .sort((a, b) => (a.date! < b.date! ? -1 : 1));
+  return upcoming[0] ?? null;
+}
+
 async function mapLawsuitToProcess(l: AdvboxLawsuit): Promise<LegalProcess> {
   const movements = await fetchMovements(l.id);
   const { currentPhase, status, concludedAt } = detectPhaseAndStatus(
@@ -249,7 +300,10 @@ async function mapLawsuitToProcess(l: AdvboxLawsuit): Promise<LegalProcess> {
     [...movements].sort((a, b) => (a.date < b.date ? 1 : -1)).map((m) => ({ date: m.date, text: m.title }))
   );
 
-  const documents = await fetchDocumentsForProcess(l);
+  const [documents, nextAppointment] = await Promise.all([
+    fetchDocumentsForProcess(l),
+    fetchNextClientAppointment(l.id),
+  ]);
 
   const primaryCustomer = l.customers[0];
   const lastMovementDate = movements.reduce<string | null>(
@@ -271,7 +325,7 @@ async function mapLawsuitToProcess(l: AdvboxLawsuit): Promise<LegalProcess> {
     startedAt: l.process_date ?? "",
     concludedAt,
     lawyerName: l.responsible ?? "—",
-    nextAction: buildNextAction(),
+    nextAction: buildNextAction(nextAppointment),
     forecast: "O prazo de cada etapa varia conforme o tribunal e a complexidade do caso.",
     lastMovementAt: lastMovementDate ?? l.process_date ?? "",
     timeline,
@@ -280,15 +334,28 @@ async function mapLawsuitToProcess(l: AdvboxLawsuit): Promise<LegalProcess> {
 }
 
 /**
- * Sem um sinal confiável vindo do ADVBOX de "isto é uma pendência do
- * cliente" (ver nota no topo do arquivo), todo processo real entra como
- * "sem pendência" — mais seguro que arriscar um falso "ação necessária"
- * que preocupa o cliente à toa ou manda ele pro WhatsApp sem motivo.
+ * Sem um sinal confiável vindo do ADVBOX de "isto é uma pendência que o
+ * CLIENTE precisa resolver" (ver nota no topo do arquivo), não arriscamos
+ * um falso "ação necessária" que preocupa o cliente à toa ou manda ele
+ * pro WhatsApp sem motivo — por isso `type` nunca é "acao" aqui. O que
+ * dá pra mostrar com segurança é um compromisso real já agendado
+ * (audiência, perícia, sessão de julgamento — ver
+ * `fetchNextClientAppointment`), como aviso informativo.
  */
-function buildNextAction(): NextAction {
+function buildNextAction(appointment: AdvboxTask | null): NextAction {
+  if (!appointment || !appointment.date) {
+    return {
+      type: "ok",
+      text: "Nenhuma ação necessária no momento. Seu advogado avisa por aqui assim que houver novidade.",
+    };
+  }
+  const dueDate = appointment.date.slice(0, 10);
+  const label = CLIENT_FACING_TASK_LABELS[appointment.task] ?? appointment.task;
+  const where = appointment.local ? ` em ${appointment.local}` : "";
   return {
-    type: "ok",
-    text: "Nenhuma ação necessária no momento. Seu advogado avisa por aqui assim que houver novidade.",
+    type: "aviso",
+    text: `${label} agendada para ${formatDatePtBR(dueDate)}${where}.`,
+    dueDate,
   };
 }
 

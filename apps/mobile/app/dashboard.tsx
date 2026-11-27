@@ -2,11 +2,22 @@ import { useEffect, useState } from "react";
 import { View, Text, FlatList, Pressable, StyleSheet } from "react-native";
 import { useRouter, Stack, Link } from "expo-router";
 import type { LegalProcess } from "@portal/shared";
-import { areaLabel, statusLabel } from "@portal/shared";
+import { areaLabel, statusLabel, nextActionLabel } from "@portal/shared";
 import { getToken, listProcesses, logout } from "@/lib/api";
 import { colors } from "@/theme/colors";
 import { Logo } from "@/components/Logo";
 import { FadeInView } from "@/components/FadeInView";
+
+const PILL_BG: Record<"acao" | "ok" | "aviso", string> = {
+  acao: "#f6e6c8",
+  aviso: colors.border,
+  ok: "#dcecdf",
+};
+const PILL_TEXT: Record<"acao" | "ok" | "aviso", string> = {
+  acao: "#7a5a13",
+  aviso: colors.textMuted,
+  ok: colors.forest,
+};
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -90,11 +101,11 @@ export default function DashboardScreen() {
               <View
                 style={[
                   styles.pill,
-                  { backgroundColor: item.nextAction.type === "acao" ? "#f6e6c8" : "#dcecdf" },
+                  { backgroundColor: PILL_BG[item.nextAction.type] },
                 ]}
               >
-                <Text style={{ color: item.nextAction.type === "acao" ? "#7a5a13" : colors.forest, fontSize: 12, fontWeight: "700" }}>
-                  {item.nextAction.type === "acao" ? "Ação necessária" : "Em dia"}
+                <Text style={{ color: PILL_TEXT[item.nextAction.type], fontSize: 12, fontWeight: "700" }}>
+                  {nextActionLabel(item.nextAction.type)}
                 </Text>
               </View>
             </Pressable>

@@ -101,6 +101,8 @@ export default function ProcessPage() {
   }
 
   const needsAction = process.nextAction.type === "acao";
+  const bannerColor =
+    process.nextAction.type === "acao" ? "var(--wine)" : process.nextAction.type === "aviso" ? "var(--brass)" : "var(--forest)";
 
   function copyProcessNumber() {
     const number = process!.number;
@@ -153,6 +155,11 @@ export default function ProcessPage() {
             Entrou na Justiça em: {formatDatePtBR(process.startedAt)}
           </p>
         )}
+        {process.lawyerName && process.lawyerName !== "—" && (
+          <p style={{ margin: "2px 0 0", fontSize: "0.8rem", color: "var(--text-muted)" }}>
+            Advogado(a) responsável: {process.lawyerName}
+          </p>
+        )}
         <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
           <h1 className="serif" style={{ margin: "4px 0 4px", fontSize: "1.5rem", minWidth: 0, overflowWrap: "anywhere" }}>Processo nº {process.number}</h1>
           <button
@@ -171,7 +178,7 @@ export default function ProcessPage() {
         <PhaseSteps currentPhase={process.currentPhase} />
 
         <div className="card" style={{ marginBottom: 20 }}>
-          <p style={{ margin: 0, fontWeight: 600, color: needsAction ? "var(--wine)" : "var(--forest)" }}>
+          <p style={{ margin: 0, fontWeight: 600, color: bannerColor }}>
             {process.nextAction.text}
           </p>
           <p style={{ margin: "8px 0 0", fontSize: "0.85rem", color: "var(--text-muted)" }}>{process.forecast}</p>

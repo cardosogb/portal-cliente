@@ -38,6 +38,8 @@ export default function ProcessScreen() {
   }
 
   const needsAction = process.nextAction.type === "acao";
+  const bannerColor =
+    process.nextAction.type === "acao" ? colors.wine : process.nextAction.type === "aviso" ? colors.brass : colors.forest;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
@@ -48,12 +50,15 @@ export default function ProcessScreen() {
       {process.startedAt && (
         <Text style={styles.mutedSmall}>Entrou na Justiça em: {formatDatePtBR(process.startedAt)}</Text>
       )}
+      {process.lawyerName && process.lawyerName !== "—" && (
+        <Text style={styles.mutedSmall}>Advogado(a) responsável: {process.lawyerName}</Text>
+      )}
       <Text style={styles.mutedSmall}>
         Fase atual: {process.currentPhase} — {phaseExplanation(process.currentPhase)}
       </Text>
 
       <FadeInView style={styles.actionCard}>
-        <Text style={{ color: needsAction ? colors.wine : colors.forest, fontWeight: "600" }}>
+        <Text style={{ color: bannerColor, fontWeight: "600" }}>
           {process.nextAction.text}
         </Text>
         <Text style={styles.mutedSmall}>{process.forecast}</Text>
