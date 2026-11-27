@@ -71,8 +71,15 @@ export default function LoginScreen() {
   }
 
   if (checking) {
-    // Nada pra mostrar aqui: a splash nativa (logo) ainda está por cima.
-    return <View style={{ flex: 1, backgroundColor: colors.ink }} />;
+    // Continuação da splash nativa enquanto o JS checa a sessão salva:
+    // mesmo fundo azul, logo completa e "Portal do Cliente" centralizados,
+    // pra não ter nenhuma troca de visual perceptível nessa transição.
+    return (
+      <View style={styles.splashContainer}>
+        <Logo height={70} variant="full" />
+        <Text style={styles.splashTitle}>Portal do Cliente</Text>
+      </View>
+    );
   }
 
   return (
@@ -173,6 +180,8 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.ink, padding: 24, justifyContent: "center" },
+  splashContainer: { flex: 1, backgroundColor: colors.ink, alignItems: "center", justifyContent: "center" },
+  splashTitle: { color: colors.white, fontSize: 18, fontWeight: "600", marginTop: 18 },
   title: { color: colors.white, fontSize: 28, fontWeight: "600", marginBottom: 6 },
   subtitle: { color: colors.fog2, fontSize: 13, marginBottom: 24 },
   label: { color: colors.fog2, marginBottom: 6, marginTop: 12 },
