@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { View, Text, Pressable, ScrollView, StyleSheet } from "react-native";
 import { useRouter, Stack } from "expo-router";
-import { areaLabel, statusLabel } from "@portal/shared";
+import { areaLabel, statusLabel, formatDatePtBR } from "@portal/shared";
 import { getToken, getSession, getExecutiveOverview, logout, type ExecutiveOverview } from "@/lib/api";
 import { colors } from "@/theme/colors";
 import { FadeInView } from "@/components/FadeInView";
@@ -84,6 +84,7 @@ export default function ExecutivoScreen() {
             />
             <StatTile label="Concluídos" value={data.processTotals.byStatus["concluido"] ?? 0} accent={colors.forest} />
             <StatTile label="Funcionários com acesso" value={data.team.length} />
+            <StatTile label={`Prazos em ${data.deadlines.windowDays} dias`} value={data.deadlines.upcomingCount} />
           </View>
 
           <Text style={styles.subsectionTitle}>Processos por status</Text>
@@ -105,6 +106,25 @@ export default function ExecutivoScreen() {
               </View>
             ))}
           </View>
+
+          <Text style={styles.subsectionTitle}>Prazos mais próximos</Text>
+          <Text style={styles.meta}>
+            Intimações recebidas nos últimos {data.deadlines.windowDays} dias, com prazo ainda não vencido.
+          </Text>
+          {data.deadlines.nearest.length === 0 ? (
+            <Text style={[styles.meta, { marginTop: 8, marginBottom: 8 }]}>Nenhum prazo pendente no momento.</Text>
+          ) : (
+            data.deadlines.nearest.map((d, i) => (
+              <FadeInView key={`${d.processNumber}-${d.date}-${i}`} delay={i * 30} style={styles.card}>
+                <View style={styles.teamRow}>
+                  <Text style={styles.rowTitle}>{formatDatePtBR(d.date)}</Text>
+                  <Text style={styles.meta}>{d.court}</Text>
+                </View>
+                <Text style={styles.meta}>{d.processNumber}</Text>
+                <Text style={styles.meta}>{d.clientName} · {d.lawyerName}</Text>
+              </FadeInView>
+            ))
+          )}
 
           <Text style={styles.subsectionTitle}>Desenvolvimento por advogado</Text>
           {data.staffPerformance.map((s, i) => (

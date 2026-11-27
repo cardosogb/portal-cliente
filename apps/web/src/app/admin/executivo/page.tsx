@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { areaLabel, statusLabel } from "@portal/shared";
+import { areaLabel, statusLabel, formatDatePtBR } from "@portal/shared";
 import { getExecutiveOverview, getSession, logout as apiLogout, type ExecutiveOverview } from "@/lib/api";
 import { Logo } from "@/components/Logo";
 
@@ -146,6 +146,10 @@ export default function ExecutiveDashboardPage() {
               />
               <StatTile label="Concluídos" value={data.processTotals.byStatus["concluido"] ?? 0} accent="forest" />
               <StatTile label="Funcionários com acesso ao painel" value={data.team.length} />
+              <StatTile
+                label={`Prazos nos próximos ${data.deadlines.windowDays} dias`}
+                value={data.deadlines.upcomingCount}
+              />
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 20, marginBottom: 24 }}>
@@ -162,6 +166,41 @@ export default function ExecutiveDashboardPage() {
                 ))}
               </div>
             </div>
+
+            <h2 className="serif" style={{ marginBottom: 10 }}>Prazos mais próximos</h2>
+            <p style={{ margin: "0 0 12px", fontSize: "0.85rem", color: "var(--text-muted)" }}>
+              Intimações reais recebidas pelo escritório nos últimos {data.deadlines.windowDays} dias, com prazo ainda
+              não vencido.
+            </p>
+            {data.deadlines.nearest.length === 0 ? (
+              <p style={{ color: "var(--text-muted)", marginBottom: 24 }}>Nenhum prazo pendente no momento.</p>
+            ) : (
+              <div className="card" style={{ overflowX: "auto", marginBottom: 24, padding: 0 }}>
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Prazo</th>
+                      <th>Processo</th>
+                      <th>Cliente</th>
+                      <th>Advogado</th>
+                      <th>Tribunal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.deadlines.nearest.map((d, i) => (
+                      <tr key={`${d.processNumber}-${d.date}-${i}`}>
+                        <td style={{ fontVariantNumeric: "tabular-nums" }}>{formatDatePtBR(d.date)}</td>
+                        <td>{d.processNumber}</td>
+                        <td>{d.clientName}</td>
+                        <td>{d.lawyerName}</td>
+                        <td>{d.court}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            <p className="table-scroll-hint">→ Arraste a tabela para o lado para ver todas as colunas.</p>
 
             <h2 className="serif" style={{ marginBottom: 10 }}>Desenvolvimento por advogado</h2>
             <div className="card" style={{ overflowX: "auto", marginBottom: 24, padding: 0 }}>

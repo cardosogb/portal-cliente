@@ -129,6 +129,18 @@ export interface ExecutiveOverview {
     responseCount: number;
   }>;
   team: Array<{ name: string; title: string; accessLevel: "padrao" | "executivo" }>;
+  deadlines: {
+    windowDays: number;
+    upcomingCount: number;
+    byLawyer: Array<{ lawyerName: string; count: number }>;
+    nearest: Array<{
+      date: string;
+      lawyerName: string;
+      clientName: string;
+      processNumber: string;
+      court: string;
+    }>;
+  };
 }
 
 export function getExecutiveOverview() {

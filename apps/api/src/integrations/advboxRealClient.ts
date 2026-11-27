@@ -426,6 +426,11 @@ class RealAdvboxClient implements AdvboxClient {
     return getCachedProcesses();
   }
 
+  async getUpcomingDeadlines() {
+    const { getCachedDeadlines } = await import("./publicationsCache");
+    return getCachedDeadlines();
+  }
+
   async getDocumentDownloadUrl(documentId: string): Promise<string | null> {
     // Formato do envelope ({ data: { temporary_url } }) assumido por
     // consistência com o resto da API — a conta testada não tinha nenhum

@@ -36,6 +36,14 @@ import {
 } from "@portal/shared";
 import { realAdvboxClient } from "./advboxRealClient";
 
+export interface DeadlineItem {
+  date: string; // AAAA-MM-DD
+  lawyerName: string;
+  clientName: string;
+  processNumber: string;
+  court: string;
+}
+
 export interface AdvboxClient {
   listClients(): Promise<Client[]>;
   getClientByCpfAndBirthDate(cpf: string, birthDateDDMM: string): Promise<Client | null>;
@@ -49,6 +57,11 @@ export interface AdvboxClient {
    * clique (ver routes/processes.ts), nunca guardada de antemão.
    */
   getDocumentDownloadUrl(documentId: string): Promise<string | null>;
+  /**
+   * Prazos do escritório inteiro vindos de intimações reais (painel
+   * interno/dashboard executivo) — ver `publicationsCache.ts`.
+   */
+  getUpcomingDeadlines(): Promise<DeadlineItem[]>;
 }
 
 class MockAdvboxClient implements AdvboxClient {
@@ -78,6 +91,26 @@ class MockAdvboxClient implements AdvboxClient {
   async getDocumentDownloadUrl(documentId: string): Promise<string | null> {
     const doc = mockProcesses.flatMap((p) => p.documents).find((d) => d.id === documentId);
     return doc?.url ?? null;
+  }
+
+  async getUpcomingDeadlines(): Promise<DeadlineItem[]> {
+    const inDays = (n: number) => new Date(Date.now() + n * 86_400_000).toISOString().slice(0, 10);
+    return [
+      {
+        date: inDays(4),
+        lawyerName: "Dra. Fernanda Lima",
+        clientName: "Maria Souza",
+        processNumber: "0001234-56.2026.5.02.0001",
+        court: "TRT02",
+      },
+      {
+        date: inDays(11),
+        lawyerName: "Dr. Ricardo Alves",
+        clientName: "João Pereira",
+        processNumber: "0007890-12.2026.4.03.0002",
+        court: "TRF03",
+      },
+    ];
   }
 }
 

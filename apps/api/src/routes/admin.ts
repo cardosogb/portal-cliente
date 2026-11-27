@@ -1,6 +1,7 @@
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import { advboxClient } from "../integrations/advboxAdapter";
+import { DEADLINES_WINDOW_DAYS } from "../integrations/publicationsCache";
 import { daysSinceLastMovement, isStale, STALE_DAYS_THRESHOLD } from "../integrations/processHealth";
 import { mockClients, mockSatisfaction, mockStaffUsers } from "@portal/shared";
 import { requireAccessLevel, requireAuth, requireRole, type AuthedRequest } from "../auth";
@@ -62,7 +63,10 @@ adminRouter.get("/overview", asyncHandler(async (_req, res) => {
  * da equipe.
  */
 adminRouter.get("/executive-overview", requireAccessLevel("executivo"), asyncHandler(async (_req, res) => {
-  const processes = await advboxClient.listAllProcesses();
+  const [processes, deadlines] = await Promise.all([
+    advboxClient.listAllProcesses(),
+    advboxClient.getUpcomingDeadlines(),
+  ]);
 
   const byStatus: Record<string, number> = {};
   const byArea: Record<string, number> = {};
@@ -95,6 +99,11 @@ adminRouter.get("/executive-overview", requireAccessLevel("executivo"), asyncHan
     accessLevel: s.accessLevel,
   }));
 
+  const deadlinesByLawyer = new Map<string, number>();
+  for (const d of deadlines) {
+    deadlinesByLawyer.set(d.lawyerName, (deadlinesByLawyer.get(d.lawyerName) ?? 0) + 1);
+  }
+
   return res.json({
     processTotals: {
       total: processes.length,
@@ -105,5 +114,15 @@ adminRouter.get("/executive-overview", requireAccessLevel("executivo"), asyncHan
     },
     staffPerformance,
     team,
+    deadlines: {
+      windowDays: DEADLINES_WINDOW_DAYS,
+      upcomingCount: deadlines.length,
+      byLawyer: [...deadlinesByLawyer.entries()]
+        .map(([lawyerName, count]) => ({ lawyerName, count }))
+        .sort((a, b) => b.count - a.count),
+      // Só os mais próximos — a equipe não precisa da lista inteira aqui,
+      // só "o que está batendo primeiro".
+      nearest: deadlines.slice(0, 15),
+    },
   });
 }));
