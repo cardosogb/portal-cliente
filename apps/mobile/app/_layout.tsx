@@ -21,6 +21,8 @@ export default function RootLayout() {
       <Stack.Screen name="dashboard" options={{ title: "Seus processos" }} />
       <Stack.Screen name="process/[id]" options={{ title: "Processo" }} />
       <Stack.Screen name="ajuda" options={{ title: "Central de ajuda" }} />
+      <Stack.Screen name="admin" options={{ title: "Painel interno" }} />
+      <Stack.Screen name="admin/executivo" options={{ title: "Dashboard executivo" }} />
     </Stack>
   );
 }

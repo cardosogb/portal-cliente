@@ -1,11 +1,28 @@
 import { useState } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  StyleSheet,
+  Keyboard,
+  TouchableWithoutFeedback,
+  KeyboardAvoidingView,
+  Platform,
+  InputAccessoryView,
+} from "react-native";
 import { useRouter, Link } from "expo-router";
 import { onlyDigits } from "@portal/shared";
 import { login } from "@/lib/api";
 import { colors } from "@/theme/colors";
 import { Logo } from "@/components/Logo";
 import { FadeInView } from "@/components/FadeInView";
+
+// O teclado numérico do iOS não tem tecla de "concluído"/retorno — sem um
+// jeito explícito de fechar, ele fica preso na tela e esconde o botão
+// "Entrar". A barra abaixo (InputAccessoryView, só iOS) resolve isso; o
+// toque fora dos campos (TouchableWithoutFeedback) cobre o Android também.
+const KEYBOARD_ACCESSORY_ID = "login-keyboard-done";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -19,11 +36,7 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       const data = await login(cpf, birthDate);
-      if (data.role === "escritorio") {
-        setError("Esta conta é do escritório. O painel interno só está disponível no site.");
-        return;
-      }
-      router.replace("/dashboard");
+      router.replace(data.role === "escritorio" ? "/admin" : "/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao entrar.");
     } finally {
@@ -32,6 +45,11 @@ export default function LoginScreen() {
   }
 
   return (
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
     <View style={styles.container}>
       <FadeInView>
         <View style={{ marginBottom: 20, alignItems: "center" }}>
@@ -50,6 +68,8 @@ export default function LoginScreen() {
           maxLength={11}
           textContentType="username"
           autoComplete="username"
+          returnKeyType="done"
+          inputAccessoryViewID={Platform.OS === "ios" ? KEYBOARD_ACCESSORY_ID : undefined}
         />
         {cpf.length > 0 && (
           <Text
@@ -73,6 +93,9 @@ export default function LoginScreen() {
           maxLength={4}
           textContentType="none"
           autoComplete="off"
+          returnKeyType="done"
+          onSubmitEditing={handleSubmit}
+          inputAccessoryViewID={Platform.OS === "ios" ? KEYBOARD_ACCESSORY_ID : undefined}
         />
         {birthDate.length > 0 && (
           <Text
@@ -103,6 +126,17 @@ export default function LoginScreen() {
         </Link>
       </FadeInView>
     </View>
+    </TouchableWithoutFeedback>
+    {Platform.OS === "ios" && (
+      <InputAccessoryView nativeID={KEYBOARD_ACCESSORY_ID}>
+        <View style={styles.accessoryBar}>
+          <Pressable onPress={Keyboard.dismiss} hitSlop={8}>
+            <Text style={styles.accessoryButtonText}>Concluído</Text>
+          </Pressable>
+        </View>
+      </InputAccessoryView>
+    )}
+    </KeyboardAvoidingView>
   );
 }
 
@@ -134,4 +168,12 @@ const styles = StyleSheet.create({
   buttonText: { color: colors.white, fontWeight: "700", fontSize: 16 },
   hint: { color: colors.fog2, fontSize: 12, marginTop: 16, textAlign: "center" },
   helpLink: { color: colors.brassLight, fontSize: 13, marginTop: 14, textAlign: "center" },
+  accessoryBar: {
+    backgroundColor: "#f2f2f2",
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    padding: 10,
+    alignItems: "flex-end",
+  },
+  accessoryButtonText: { color: colors.brass, fontWeight: "700", fontSize: 16, padding: 4 },
 });

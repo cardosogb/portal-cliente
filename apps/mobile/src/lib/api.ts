@@ -74,3 +74,62 @@ export async function logout(): Promise<void> {
   });
   await clearToken();
 }
+
+export interface Session {
+  role: "cliente" | "escritorio";
+  clientId?: string;
+  staffId?: string;
+  staffAccessLevel?: "padrao" | "executivo";
+}
+
+export async function getSession(): Promise<Session | null> {
+  try {
+    return await request<Session>("/auth/me");
+  } catch {
+    return null;
+  }
+}
+
+export interface AdminOverviewRow {
+  clientName: string;
+  processNumber: string;
+  lawyerName: string;
+  lastAccessAt: string | null;
+  status: string;
+  daysSinceLastMovement: number | null;
+  isStale: boolean;
+}
+
+export interface AdminOverview {
+  staleProcessesCount: number;
+  staleDaysThreshold: number;
+  rows: AdminOverviewRow[];
+  satisfaction: Array<{ lawyerName: string; averageScore: number; responseCount: number }>;
+}
+
+export function getAdminOverview() {
+  return request<AdminOverview>("/admin/overview");
+}
+
+export interface ExecutiveOverview {
+  processTotals: {
+    total: number;
+    byStatus: Record<string, number>;
+    byArea: Record<string, number>;
+    staleCount: number;
+    staleDaysThreshold: number;
+  };
+  staffPerformance: Array<{
+    lawyerName: string;
+    activeProcesses: number;
+    concludedProcesses: number;
+    staleProcesses: number;
+    averageScore: number | null;
+    responseCount: number;
+  }>;
+  team: Array<{ name: string; title: string; accessLevel: "padrao" | "executivo" }>;
+}
+
+export function getExecutiveOverview() {
+  return request<ExecutiveOverview>("/admin/executive-overview");
+}
