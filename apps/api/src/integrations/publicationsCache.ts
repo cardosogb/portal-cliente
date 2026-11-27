@@ -21,6 +21,7 @@ const SYNC_INTERVAL_MS = 30 * 60 * 1000; // 30 minutos
 const WINDOW_DAYS = 31;
 
 interface AdvboxPublication {
+  lawsuit_id: number | null;
   process_number: string | null;
   court: string | null;
   customers: string | null;
@@ -65,14 +66,24 @@ let syncInFlight: Promise<void> | null = null;
 
 async function runSync(): Promise<void> {
   try {
-    const publications = await fetchRecentPublications();
+    // O campo `term` de uma publicação costuma ser quem capta oficialmente
+    // as intimações pelo escritório (ex.: o OAB cadastrado), não
+    // necessariamente quem toca o caso no dia a dia — por isso preferimos
+    // o `responsible` de verdade do processo (o mesmo `lawyerName` usado
+    // no resto do app), cruzando por `lawsuit_id`. `getCachedProcesses()`
+    // já é sincronizado à parte (ver `processesCache.ts`) e reaproveitado
+    // aqui sem nenhuma chamada extra ao ADVBOX — só cai pro `term` quando
+    // o processo não está nesse cache (ex.: ainda não sincronizou).
+    const { getCachedProcesses } = await import("./processesCache");
+    const [publications, processes] = await Promise.all([fetchRecentPublications(), getCachedProcesses()]);
+    const lawyerByLawsuitId = new Map(processes.map((p) => [p.id, p.lawyerName]));
     const todayStr = new Date().toISOString().slice(0, 10);
 
     cachedDeadlines = publications
       .filter((p) => p.deadline_start && p.deadline_start >= todayStr && p.status !== "completed")
       .map((p) => ({
         date: p.deadline_start!,
-        lawyerName: p.term ?? "—",
+        lawyerName: (p.lawsuit_id ? lawyerByLawsuitId.get(String(p.lawsuit_id)) : undefined) ?? p.term ?? "—",
         clientName: p.customers ?? "—",
         processNumber: p.process_number ?? "—",
         court: p.court ?? "—",
