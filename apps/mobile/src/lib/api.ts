@@ -2,8 +2,16 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 import type { LegalProcess } from "@portal/shared";
 
+/**
+ * No celular físico, "localhost" aponta pro próprio celular, não pro
+ * computador rodando a API — por isso dá pra sobrescrever via variável
+ * de ambiente (EXPO_PUBLIC_API_URL), que o Expo já injeta sozinho em
+ * process.env no bundle, sem precisar mexer em app.json por máquina.
+ */
 const API_URL =
-  (Constants.expoConfig?.extra?.apiUrl as string | undefined) ?? "http://localhost:4000";
+  process.env.EXPO_PUBLIC_API_URL ??
+  (Constants.expoConfig?.extra?.apiUrl as string | undefined) ??
+  "http://localhost:4000";
 const TOKEN_KEY = "portal_token";
 
 export async function getToken(): Promise<string | null> {
