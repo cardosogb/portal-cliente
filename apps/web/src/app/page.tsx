@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { onlyDigits } from "@portal/shared";
 import { login } from "@/lib/api";
+import Image from "next/image";
 import { Logo } from "@/components/Logo";
 import { WarningIcon } from "@/components/Icons";
 
@@ -31,6 +32,15 @@ export default function LoginPage() {
 
   return (
     <main className="login-bg">
+      <Image
+        src="/logo-icon.png"
+        alt=""
+        aria-hidden="true"
+        width={1130}
+        height={689}
+        priority
+        className="login-bg-logo"
+      />
       <div className="card fade-up" style={{ maxWidth: 420, width: "100%" }}>
         <div style={{ marginBottom: 20 }}>
           <Logo height={56} variant="full" />

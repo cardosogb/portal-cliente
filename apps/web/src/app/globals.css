@@ -656,12 +656,46 @@ a.card:focus-visible {
 
 /* ---------- Fundo decorativo da tela de login ---------- */
 .login-bg {
+  position: relative;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
+  overflow: hidden;
   background:
     radial-gradient(900px 480px at 18% -10%, rgba(173, 138, 61, 0.2), transparent 60%),
     linear-gradient(180deg, var(--ink) 0%, #0d1830 100%);
+}
+
+/* Logo gigante e desfocada ao fundo do login — presença de marca sem
+   competir com o formulário. `blur()` perto da borda do container cria
+   uma linha reta visível onde o desfoque "bate" no corte; por isso a
+   logo é bem maior que a tela (overflow: hidden no .login-bg esconde
+   as bordas borradas em vez de cortá-las de forma abrupta). */
+.login-bg-logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1100px;
+  height: auto;
+  transform: translate(-50%, -50%);
+  opacity: 0.14;
+  filter: blur(22px);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Em telas estreitas, a logo em tamanho fixo de desktop fica grande
+   demais perto do card — só se vê um pedaço desfocado sem reconhecer a
+   forma. Encolhe pra caber mais da logo inteira na tela. */
+@media (max-width: 640px) {
+  .login-bg-logo {
+    width: 480px;
+  }
+}
+
+.login-bg .card {
+  position: relative;
+  z-index: 1;
 }
