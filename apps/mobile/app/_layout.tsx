@@ -1,5 +1,12 @@
 import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { colors } from "@/theme/colors";
+
+// Mantém a splash screen nativa (logo no fundo escuro) visível até a tela
+// inicial (app/index.tsx) terminar de checar se já existe uma sessão
+// salva e decidir pra onde ir — sem isso, apareceria um instante de tela
+// branca/vazia entre o app abrir e o login (ou o painel) aparecer.
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   return (

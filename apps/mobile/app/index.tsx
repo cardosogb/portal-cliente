@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -12,8 +12,9 @@ import {
   InputAccessoryView,
 } from "react-native";
 import { useRouter, Link } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { onlyDigits } from "@portal/shared";
-import { login } from "@/lib/api";
+import { login, getToken, getSession, clearToken } from "@/lib/api";
 import { colors } from "@/theme/colors";
 import { Logo } from "@/components/Logo";
 import { FadeInView } from "@/components/FadeInView";
@@ -30,6 +31,31 @@ export default function LoginScreen() {
   const [birthDate, setBirthDate] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  // Login persistente: se já existe um token salvo, confirma com a API (pode
+  // ter expirado ou sido revogado) e, se ainda for válido, pula a tela de
+  // login direto pro painel certo. A splash nativa continua cobrindo a tela
+  // até essa checagem terminar, então o usuário nunca vê o formulário piscar.
+  useEffect(() => {
+    (async () => {
+      const token = await getToken();
+      if (!token) {
+        setChecking(false);
+        await SplashScreen.hideAsync();
+        return;
+      }
+      const session = await getSession();
+      if (!session) {
+        await clearToken();
+        setChecking(false);
+        await SplashScreen.hideAsync();
+        return;
+      }
+      router.replace(session.role === "escritorio" ? "/admin" : "/dashboard");
+      await SplashScreen.hideAsync();
+    })();
+  }, [router]);
 
   async function handleSubmit() {
     setError(null);
@@ -42,6 +68,11 @@ export default function LoginScreen() {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (checking) {
+    // Nada pra mostrar aqui: a splash nativa (logo) ainda está por cima.
+    return <View style={{ flex: 1, backgroundColor: colors.ink }} />;
   }
 
   return (
