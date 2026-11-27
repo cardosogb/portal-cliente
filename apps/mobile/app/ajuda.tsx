@@ -32,12 +32,6 @@ export default function AjudaScreen() {
         — ele abre (ou baixa) automaticamente.
       </FaqItem>
 
-      <FaqItem question="O que significa uma parcela &quot;pendente&quot; ou &quot;atrasada&quot;?">
-        "Pendente" quer dizer que ainda está dentro do prazo pra pagar. "Atrasada" quer dizer que
-        o prazo já passou. As duas aparecem na aba "Financeiro" da página do seu processo, junto
-        com a data de vencimento.
-      </FaqItem>
-
       <FaqItem question="Apareceu &quot;Ação necessária&quot; no meu processo — o que eu faço?">
         Significa que o escritório precisa de alguma coisa sua (por exemplo, um documento) pra o
         processo continuar sem atraso. Toque no processo pra ver exatamente o que é pedido —

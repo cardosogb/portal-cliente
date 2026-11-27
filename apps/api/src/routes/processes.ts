@@ -31,11 +31,11 @@ const processIdParams = z.object({
  * O cliente só pode ver o próprio processo (checagem de `clientId`); a
  * equipe do escritório pode ver qualquer um — ela já enxerga todos os
  * processos de forma agregada em `/admin/overview`, então ver o detalhe
- * de um processo específico (linha do tempo, documentos, financeiro) não
- * é uma informação nova pra ela, só a mesma visão que o cliente tem do
- * próprio caso. Concedido por papel (`role === "escritorio"`), não para
- * uma pessoa específica — qualquer conta de equipe legítima tem isso,
- * igual já acontece com o painel interno.
+ * de um processo específico (linha do tempo, documentos) não é uma
+ * informação nova pra ela, só a mesma visão que o cliente tem do próprio
+ * caso. Concedido por papel (`role === "escritorio"`), não para uma
+ * pessoa específica — qualquer conta de equipe legítima tem isso, igual
+ * já acontece com o painel interno.
  */
 function canViewProcess(process: { clientId: string }, session: AuthedRequest["session"]): boolean {
   if (!session) return false;

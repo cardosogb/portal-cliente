@@ -46,12 +46,11 @@ function mapLawsuitLight(l: AdvboxLawsuit, lastMovement: AdvboxMovement | undefi
     nextAction: { type: "ok", text: "Nenhuma ação necessária no momento." },
     forecast: "",
     lastMovementAt: lastMovement?.date ?? l.process_date ?? "",
-    // A visão de painel interno não precisa da timeline/documentos/
-    // financeiro completos (não são exibidos na tabela de admin) — evita
-    // buscar isso para 30 mil processos de uma vez só.
+    // A visão de painel interno não precisa da timeline/documentos
+    // completos (não são exibidos na tabela de admin) — evita buscar isso
+    // para 30 mil processos de uma vez só.
     timeline: [],
     documents: [],
-    financial: [],
   };
 }
 

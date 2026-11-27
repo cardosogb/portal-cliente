@@ -1,7 +1,7 @@
 /**
  * Log de auditoria de acesso ao painel interno: quem (qual funcionário)
  * acessou o quê e quando. Importante porque o painel dá visão de dados
- * sensíveis (CPF, processo, financeiro) de todos os clientes — em caso de
+ * sensíveis (CPF, processo) de todos os clientes — em caso de
  * uso indevido ou de uma dúvida tipo "quem olhou os dados do cliente X",
  * precisa dar pra responder.
  *

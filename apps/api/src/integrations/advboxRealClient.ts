@@ -42,7 +42,6 @@ import {
   type LegalProcess,
   type ProcessArea,
   type ProcessDocument,
-  type FinancialInstallment,
   type NextAction,
 } from "@portal/shared";
 import type { AdvboxClient } from "./advboxAdapter";
@@ -184,15 +183,6 @@ interface AdvboxDocument {
   uploaded_at: string;
 }
 
-interface AdvboxTransaction {
-  id: number;
-  entry_type: "income" | "expense";
-  date_due: string; // "AAAA-MM-DD"
-  date_payment: string | null;
-  amount: number;
-  description: string | null;
-}
-
 // ---- Mapeamentos ----
 
 const AREA_BY_GROUP: Record<string, ProcessArea> = {
@@ -237,9 +227,15 @@ function isRealLawsuit(l: AdvboxLawsuit): boolean {
   return !!l.process_number;
 }
 
+/**
+ * Busca TODAS as páginas de movimentações do processo — sem paginar aqui,
+ * um processo antigo com centenas de andamentos viria cortado na resposta
+ * padrão do ADVBOX (mesma página única que ela devolve por padrão em
+ * qualquer lista), e o cliente precisa ver o histórico completo (menos o
+ * que foi combinado esconder, ver `isHiddenFromClient`).
+ */
 async function fetchMovements(lawsuitId: number): Promise<AdvboxMovement[]> {
-  const result = await advboxGet<{ data: AdvboxMovement[] }>(`/movements/${lawsuitId}`);
-  return result?.data ?? [];
+  return fetchAllPages<AdvboxMovement>(`/movements/${lawsuitId}`, {}, 200);
 }
 
 async function mapLawsuitToProcess(l: AdvboxLawsuit): Promise<LegalProcess> {
@@ -253,10 +249,7 @@ async function mapLawsuitToProcess(l: AdvboxLawsuit): Promise<LegalProcess> {
     [...movements].sort((a, b) => (a.date < b.date ? 1 : -1)).map((m) => ({ date: m.date, text: m.title }))
   );
 
-  const [documents, financial] = await Promise.all([
-    fetchDocumentsForProcess(l),
-    fetchFinancialForProcess(l.id),
-  ]);
+  const documents = await fetchDocumentsForProcess(l);
 
   const primaryCustomer = l.customers[0];
   const lastMovementDate = movements.reduce<string | null>(
@@ -283,7 +276,6 @@ async function mapLawsuitToProcess(l: AdvboxLawsuit): Promise<LegalProcess> {
     lastMovementAt: lastMovementDate ?? l.process_date ?? "",
     timeline,
     documents,
-    financial,
   };
 }
 
@@ -303,9 +295,13 @@ function buildNextAction(): NextAction {
 async function fetchDocumentsForProcess(l: AdvboxLawsuit): Promise<ProcessDocument[]> {
   const customerId = l.customers[0]?.customer_id;
   if (!customerId) return [];
-  const all = await advboxGet<{ data: AdvboxDocument[] }>("/documents", { customer_id: customerId, limit: 1000 });
-  return (all?.data ?? [])
-    .filter((d) => d.attached_to?.id === l.id)
+  const all = await fetchAllPages<AdvboxDocument>("/documents", { customer_id: customerId }, 1000);
+  // Pega tanto o que foi anexado diretamente a este processo (`attached_to`
+  // apontando pro id do lawsuit) quanto o que foi anexado ao cliente em
+  // geral (apontando pro id do customer, sem processo específico) — os
+  // dois tipos envolvem o cliente e precisam aparecer, não só o primeiro.
+  return all
+    .filter((d) => d.attached_to && (d.attached_to.id === l.id || d.attached_to.id === customerId))
     .map((d) => ({
       id: String(d.id),
       title: d.name,
@@ -316,21 +312,6 @@ async function fetchDocumentsForProcess(l: AdvboxLawsuit): Promise<ProcessDocume
       // aberta mais tempo que isso.
       url: `/processes/${l.id}/documents/${d.id}/download`,
       sizeKb: parseSizeToKb(d.size),
-    }));
-}
-
-async function fetchFinancialForProcess(lawsuitId: number): Promise<FinancialInstallment[]> {
-  const all = await advboxGet<{ data: AdvboxTransaction[] }>("/transactions", { lawsuit_id: lawsuitId, limit: 1000 });
-  const today = new Date().toISOString().slice(0, 10);
-  return (all?.data ?? [])
-    .filter((t) => t.entry_type === "income")
-    .map((t) => ({
-      id: String(t.id),
-      description: t.description ?? "Honorários",
-      dueDate: t.date_due,
-      amountCents: Math.round(t.amount * 100),
-      status: t.date_payment ? "pago" : t.date_due < today ? "atrasado" : "pendente",
-      paidAt: t.date_payment ?? undefined,
     }));
 }
 

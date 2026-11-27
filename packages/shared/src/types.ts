@@ -80,15 +80,6 @@ export interface ProcessDocument {
   sizeKb: number;
 }
 
-export interface FinancialInstallment {
-  id: string;
-  description: string;
-  dueDate: string;
-  amountCents: number;
-  status: "pago" | "pendente" | "atrasado";
-  paidAt?: string;
-}
-
 export interface LegalProcess {
   id: string;
   clientId: string;
@@ -121,7 +112,6 @@ export interface LegalProcess {
   lastMovementAt: string;
   timeline: TimelineEvent[];
   documents: ProcessDocument[];
-  financial: FinancialInstallment[];
 }
 
 export interface SatisfactionSurveyResult {

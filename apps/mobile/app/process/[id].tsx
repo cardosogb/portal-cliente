@@ -3,7 +3,6 @@ import { View, Text, ScrollView, Pressable, StyleSheet, Linking } from "react-na
 import { useLocalSearchParams, Link } from "expo-router";
 import type { LegalProcess } from "@portal/shared";
 import {
-  formatBRL,
   formatDatePtBR,
   areaLabel,
   phaseExplanation,
@@ -14,11 +13,10 @@ import { getProcess } from "@/lib/api";
 import { colors } from "@/theme/colors";
 import { FadeInView } from "@/components/FadeInView";
 
-type Tab = "timeline" | "documentos" | "financeiro";
+type Tab = "timeline" | "documentos";
 const TABS: Array<[Tab, string]> = [
   ["timeline", "Linha do tempo"],
   ["documentos", "Documentos"],
-  ["financeiro", "Financeiro"],
 ];
 
 export default function ProcessScreen() {
@@ -47,6 +45,9 @@ export default function ProcessScreen() {
         {areaLabel(process.area)} · {process.court}
       </Text>
       <Text style={styles.title}>Processo nº {process.number}</Text>
+      {process.startedAt && (
+        <Text style={styles.mutedSmall}>Entrou na Justiça em: {formatDatePtBR(process.startedAt)}</Text>
+      )}
       <Text style={styles.mutedSmall}>
         Fase atual: {process.currentPhase} — {phaseExplanation(process.currentPhase)}
       </Text>
@@ -107,20 +108,6 @@ export default function ProcessScreen() {
               <Text style={styles.mutedSmall}>
                 {formatDatePtBR(doc.uploadedAt)} · {doc.sizeKb} KB
               </Text>
-            </FadeInView>
-          ))}
-
-        {tab === "financeiro" &&
-          process.financial.map((f, i) => (
-            <FadeInView key={f.id} delay={i * 50} style={[styles.card, { flexDirection: "row", justifyContent: "space-between" }]}>
-              <View>
-                <Text>{f.description}</Text>
-                <Text style={styles.mutedSmall}>Vencimento: {formatDatePtBR(f.dueDate)}</Text>
-              </View>
-              <View style={{ alignItems: "flex-end" }}>
-                <Text style={{ fontWeight: "600" }}>{formatBRL(f.amountCents)}</Text>
-                <Text style={styles.mutedSmall}>{f.status}</Text>
-              </View>
             </FadeInView>
           ))}
       </FadeInView>

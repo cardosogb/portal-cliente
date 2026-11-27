@@ -152,23 +152,6 @@ export const mockProcesses: LegalProcess[] = [
         sizeKb: 289,
       },
     ],
-    financial: [
-      {
-        id: "fin_1",
-        description: "Honorários - parcela 1/6",
-        dueDate: "2026-08-05",
-        amountCents: 120000,
-        status: "pago",
-        paidAt: "2026-08-04",
-      },
-      {
-        id: "fin_2",
-        description: "Honorários - parcela 2/6",
-        dueDate: "2026-09-05",
-        amountCents: 120000,
-        status: "pendente",
-      },
-    ],
   },
   {
     id: "proc_previdenciario_1",
@@ -214,16 +197,6 @@ export const mockProcesses: LegalProcess[] = [
         uploadedAt: "2026-09-01",
         url: "/documents/proc_previdenciario_1/sentenca.pdf",
         sizeKb: 198,
-      },
-    ],
-    financial: [
-      {
-        id: "fin_3",
-        description: "Honorários - parcela única",
-        dueDate: "2026-03-10",
-        amountCents: 250000,
-        status: "pago",
-        paidAt: "2026-03-09",
       },
     ],
   },

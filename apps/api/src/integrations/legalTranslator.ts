@@ -116,11 +116,9 @@ export interface RawAdvboxMovement {
  * Converte movimentações cruas do ADVBOX na linha do tempo que o cliente
  * vê: aplica o filtro de visibilidade (`isHiddenFromClient`) e traduz o
  * texto jurídico restante para linguagem simples (`translateLegalText`).
- *
- * Ainda não é chamada em produção — os processos mockados já trazem a
- * timeline pronta —, mas é o ponto de entrada a usar quando
- * `AdvboxClient` passar a buscar as movimentações reais da API do
- * ADVBOX, para que o filtro nunca seja esquecido.
+ * Mostra todas as movimentações do processo, menos as que caem em
+ * `HIDDEN_FROM_CLIENT_PATTERNS` (combinadas com o escritório) — chamada
+ * pela integração real do ADVBOX em `advboxRealClient.ts`.
  */
 export function movementsToClientTimeline(movements: RawAdvboxMovement[]): TimelineEvent[] {
   return movements

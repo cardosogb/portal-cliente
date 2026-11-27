@@ -37,8 +37,8 @@ export default function PrivacyPage() {
           <p>
             Para você conseguir entrar no portal e acompanhar seu processo, guardamos: seu
             nome, CPF, telefone, e-mail, data de nascimento (usada como parte da senha de
-            acesso) e os dados do seu processo (andamentos, documentos e valores
-            financeiros) que vêm do sistema do escritório.
+            acesso) e os dados do seu processo (andamentos e documentos) que vêm do
+            sistema do escritório.
           </p>
         </Section>
 

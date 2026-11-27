@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import type { LegalProcess } from "@portal/shared";
 import {
-  formatBRL,
   formatDatePtBR,
   areaLabel,
   phaseExplanation,
@@ -17,15 +16,14 @@ import { Logo } from "@/components/Logo";
 import { PhaseSteps } from "@/components/PhaseSteps";
 import { EmptyState } from "@/components/EmptyState";
 import { HelpIcon } from "@/components/HelpIcon";
-import { WarningIcon, ClipboardIcon, DocumentIcon, CardIcon } from "@/components/Icons";
+import { WarningIcon, ClipboardIcon, DocumentIcon } from "@/components/Icons";
 import { Toast, useToast } from "@/components/Toast";
 
-type Tab = "timeline" | "documentos" | "financeiro";
+type Tab = "timeline" | "documentos";
 
 const TAB_LABELS: Array<[Tab, string]> = [
   ["timeline", "Linha do tempo"],
   ["documentos", "Documentos"],
-  ["financeiro", "Financeiro"],
 ];
 
 export default function ProcessPage() {
@@ -150,6 +148,11 @@ export default function ProcessPage() {
         <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
           {areaLabel(process.area)} · {process.court}
         </p>
+        {process.startedAt && (
+          <p style={{ margin: "2px 0 0", fontSize: "0.8rem", color: "var(--text-muted)" }}>
+            Entrou na Justiça em: {formatDatePtBR(process.startedAt)}
+          </p>
+        )}
         <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
           <h1 className="serif" style={{ margin: "4px 0 4px", fontSize: "1.5rem", minWidth: 0, overflowWrap: "anywhere" }}>Processo nº {process.number}</h1>
           <button
@@ -243,30 +246,6 @@ export default function ProcessPage() {
           </div>
         )}
 
-        {tab === "financeiro" && (
-          <div className="stagger-fade" style={{ display: "grid", gap: 8 }}>
-            {process.financial.length === 0 ? (
-              <EmptyState
-                icon={<CardIcon />}
-                title="Nenhuma movimentação financeira registrada."
-                description="Parcelas e pagamentos relacionados a este processo aparecem aqui quando existirem."
-              />
-            ) : (
-              process.financial.map((f) => (
-              <div key={f.id} className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div>
-                  <p style={{ margin: 0 }}>{f.description}</p>
-                  <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>Vencimento: {formatDatePtBR(f.dueDate)}</p>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <p style={{ margin: 0, fontWeight: 600 }}>{formatBRL(f.amountCents)}</p>
-                  <span className={f.status === "pago" ? "pill pill-ok" : "pill pill-action"}>{f.status}</span>
-                </div>
-              </div>
-              ))
-            )}
-          </div>
-        )}
         </div>
 
         <p style={{ marginTop: 32, fontSize: "0.8rem", textAlign: "center" }}>
